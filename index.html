@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pyramid Policy Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#13294B; --navy2:#1E3A66; --teal:#0F8B8D; --teal-l:#D5EFEF; --gold:#E0A526; --gold-l:#FBEFD2;
+  --cream:#FAF7F0; --card:#FFFFFF; --ink:#1B2333; --muted:#5B6475; --line:#E5DFD2;
+  --red:#B4441A; --red-l:#FBE6DC; --green:#2F7D4F; --green-l:#DFF2E6;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--cream);color:var(--ink);font-family:"DM Sans",system-ui,sans-serif;font-size:16px;line-height:1.5}
+h1,h2,h3{font-family:"DM Serif Display",Georgia,serif;font-weight:400;color:var(--navy);margin:0 0 .4em;line-height:1.15}
+button{font-family:inherit;font-size:inherit;cursor:pointer}
+.top{background:var(--navy);color:#fff;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{font-family:"DM Serif Display",serif;font-size:1.4rem;letter-spacing:.2px}
+.brand span{color:var(--gold)}
+.tag{font-size:.82rem;background:rgba(255,255,255,.12);padding:4px 10px;border-radius:99px}
+main{max-width:1180px;margin:0 auto;padding:24px 16px 40px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px}
+.hero{display:grid;grid-template-columns:1.3fr 1fr;gap:20px;margin-bottom:22px}
+.hero h1{font-size:2.4rem}
+.lead{font-size:1.08rem;color:var(--muted);margin:0 0 14px}
+.target{background:var(--navy);color:#fff;border-radius:14px;padding:20px}
+.target h3{color:var(--gold);font-size:1.15rem}
+.target p{margin:.3em 0}
+.target .small{opacity:.8;font-size:.88rem}
+.terms{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:0 0 22px}
+.term{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;border-top:4px solid var(--teal)}
+.term.anti{border-top-color:var(--gold)}
+.term.neutral{border-top-color:var(--navy)}
+.term > b{display:block;color:var(--navy);margin-bottom:3px}
+.term p{margin:0;font-size:.92rem;color:var(--muted)}
+.namerow{display:flex;gap:10px;align-items:center;margin:0 0 16px;flex-wrap:wrap}
+.namerow label{font-weight:700;color:var(--navy)}
+input[type=text],textarea{font-family:inherit;font-size:1rem;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:#fff;color:var(--ink);width:100%}
+input[type=text]{max-width:320px}
+input:focus,textarea:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--teal-l)}
+.countries{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.ccard{text-align:left;background:var(--card);border:1.5px solid var(--line);border-radius:14px;padding:16px;display:grid;grid-template-columns:1fr 110px;gap:10px;align-items:center;transition:transform .15s,border-color .15s,box-shadow .15s;color:var(--ink)}
+.ccard:hover,.ccard:focus-visible{transform:translateY(-2px);border-color:var(--teal);box-shadow:0 6px 18px rgba(19,41,75,.1);outline:none}
+.ccard h3{font-size:1.3rem;margin:0}
+.ccard .reg{font-size:.8rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.ccard .nums{font-size:.9rem;margin-top:6px}
+.ccard .nums b{color:var(--navy)}
+.ccard .teaser{font-size:.86rem;color:var(--muted);margin-top:6px}
+details.teacher{margin-top:22px}
+details.teacher summary{cursor:pointer;font-weight:700;color:var(--navy)}
+details.teacher p,details.teacher li{font-size:.92rem;color:var(--muted)}
+
+/* game */
+.gamehead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.gamehead h2{font-size:1.9rem;margin:0}
+.pills{display:flex;gap:8px;flex-wrap:wrap}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:99px;padding:5px 12px;font-size:.88rem}
+.pill b{color:var(--navy)}
+.linkbtn{background:none;border:none;color:var(--teal);font-weight:700;padding:4px 0;text-decoration:underline}
+.layout{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:18px;align-items:start}
+.pyrcard{position:sticky;top:12px}
+.pyrtitle{display:flex;justify-content:space-between;align-items:baseline;gap:8px;flex-wrap:wrap}
+.pyrtitle h3{margin:0;font-size:1.25rem}
+.shape{font-size:.85rem;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--teal-l);color:var(--navy)}
+svg#pyr{width:100%;height:auto;display:block;margin-top:6px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:4px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.stat{background:var(--cream);border-radius:10px;padding:8px 10px}
+.stat .k{font-size:.74rem;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.stat .v{font-size:1.15rem;font-weight:700;color:var(--navy)}
+.stat .d{font-size:.78rem;color:var(--muted)}
+.d.up{color:var(--green)} .d.down{color:var(--red)}
+.panel h3{font-size:1.35rem}
+.eyebrow{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--teal);margin-bottom:4px}
+.brief{background:var(--cream);border-left:4px solid var(--gold);padding:12px 14px;border-radius:0 10px 10px 0;margin:10px 0 14px}
+.q{font-weight:700;color:var(--navy);margin:14px 0 8px}
+.choice2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.cbtn{border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px;text-align:left;color:var(--ink)}
+.cbtn b{display:block;color:var(--navy)}
+.cbtn small{color:var(--muted)}
+.cbtn:hover{border-color:var(--teal)}
+.cbtn.pro:hover{border-color:var(--teal)} .cbtn.anti:hover{border-color:var(--gold)}
+.policies{display:grid;gap:10px}
+.pol{border:2px solid var(--line);background:#fff;border-radius:12px;padding:12px 14px;text-align:left;color:var(--ink);transition:border-color .15s,background .15s}
+.pol:hover{border-color:var(--teal)}
+.pol.sel{border-color:var(--navy);background:#F1F4FA}
+.pol b{color:var(--navy)}
+.pol p{margin:4px 0 0;font-size:.93rem;color:var(--muted)}
+.fb{border-radius:10px;padding:10px 12px;margin:10px 0;font-size:.95rem}
+.fb.ok{background:var(--green-l);color:#1F5537}
+.fb.no{background:var(--red-l);color:#7A2E10}
+.fb.info{background:var(--teal-l);color:var(--navy)}
+.fb.warn{background:var(--gold-l);color:#6B4A06}
+.primary{background:var(--navy);color:#fff;border:none;border-radius:10px;padding:12px 18px;font-weight:700}
+.primary:hover{background:var(--navy2)}
+.primary:disabled{opacity:.4;cursor:not-allowed}
+.secondary{background:#fff;color:var(--navy);border:1.5px solid var(--navy);border-radius:10px;padding:11px 16px;font-weight:700}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.hint{font-size:.85rem;color:var(--muted)}
+.chip{display:inline-block;font-size:.78rem;font-weight:700;border-radius:99px;padding:2px 9px;margin-right:6px}
+.chip.pro{background:var(--teal-l);color:#0A5F60}
+.chip.anti{background:var(--gold-l);color:#7A5508}
+.real{border:1px dashed var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:.93rem}
+.real b{color:var(--navy)}
+.cmp{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:10px 0}
+.shake{animation:shake .35s}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+
+/* report */
+.rep table{width:100%;border-collapse:collapse;font-size:.93rem;margin:10px 0 16px}
+.rep th,.rep td{border-bottom:1px solid var(--line);padding:8px 6px;text-align:left;vertical-align:top}
+.rep th{color:var(--navy);font-size:.8rem;text-transform:uppercase;letter-spacing:.05em}
+.rep .sum{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:12px 0}
+.rep textarea{min-height:80px;margin-bottom:12px}
+.steps{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 0 18px}
+.stepc{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start}
+.stepc .num{flex:none;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;display:grid;place-items:center;font-weight:700}
+.stepc.locked{opacity:.75}
+.stepc.locked .num{background:var(--muted)}
+.stepc b{color:var(--navy)}
+.stepc p{margin:2px 0 0;font-size:.92rem;color:var(--muted)}
+.usstart{width:100%;grid-template-columns:1fr 150px;border-width:2px;border-color:var(--navy);padding:20px}
+.usstart h3{font-size:1.7rem}
+.usstart .go{display:inline-block;margin-top:10px;background:var(--navy);color:#fff;border-radius:10px;padding:9px 16px;font-weight:700}
+.namewarn{color:var(--red);font-weight:700;font-size:.9rem}
+.twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
+.ccol{background:var(--cream);border-radius:12px;padding:14px}
+.ccol h3{margin:0 0 4px;font-size:1.35rem}
+.ccol svg{width:100%;height:auto;display:block;margin:6px 0}
+.ctable td:first-child{font-weight:700;color:var(--navy)}
+.ctable td:not(:first-child),.ctable th:not(:first-child){text-align:center}
+.tw{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tw table{min-width:520px}
+.minileg{font-size:.78rem;color:var(--muted)}
+footer{text-align:center;font-size:.8rem;color:var(--muted);padding:10px 16px 30px}
+@media (max-width:900px){
+  .hero,.layout,.twocol{grid-template-columns:1fr}
+  .terms{grid-template-columns:1fr 1fr}
+  .countries{grid-template-columns:1fr 1fr}
+  .pyrcard{position:static}
+  .rep .sum{grid-template-columns:1fr 1fr}
+}
+@media (max-width:560px){
+  .terms,.countries,.choice2,.steps{grid-template-columns:1fr}
+  .usstart{grid-template-columns:1fr}
+  .stats,.cmp{grid-template-columns:1fr 1fr}
+  .hero h1{font-size:1.9rem}
+}
+@media print{
+  .top,footer,.noprint,button{display:none!important}
+  body{background:#fff}
+  .card{border:none;padding:0}
+  textarea{border:1px solid #ccc}
+}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">Pyramid <span>Policy</span> Lab</div>
+  <div class="tag">AP Human Geography · Topic 2.7 Population Policies</div>
+</header>
+
+<main>
+<!-- HOME -->
+<section id="home">
+  <div class="hero">
+    <div class="card">
+      <h1>You are the population advisor.</h1>
+      <p class="lead">You’ll advise two governments. First, everyone examines the <b>United States</b>. Then you’ll choose a second country facing a different situation and compare the two.</p>
+      <p class="lead" style="margin:0">In each country you’ll diagnose the problem, then choose one policy per decade from 2025 to 2055. To enact a policy you must correctly identify it as <b style="color:var(--teal)">pronatalist</b> or <b style="color:#A87508">antinatalist</b> and explain its intent. Every choice reshapes the population pyramid.</p>
+    </div>
+    <div class="target">
+      <h3>Learning target</h3>
+      <p><b>I can explain the intent and effects of population policies on a country’s population size and composition.</b></p>
+      <p class="small">Topic 2.7 · Population Policies — pronatalist, antinatalist, and immigration policies that promote or restrict population growth.</p>
+    </div>
+  </div>
+
+  <div class="terms">
+    <div class="term"><b>Pronatalist policy</b><p>A government policy meant to <b>increase</b> the birth rate — e.g., cash for babies, paid parental leave, free childcare.</p></div>
+    <div class="term anti"><b>Antinatalist policy</b><p>A government policy meant to <b>decrease</b> the birth rate — e.g., family planning access, girls’ education, birth limits.</p></div>
+    <div class="term neutral"><b>Total fertility rate (TFR)</b><p>The average number of children a woman would have in her lifetime at current birth rates.</p></div>
+    <div class="term neutral"><b>Replacement level ≈ 2.1</b><p>The TFR needed to keep a population the same size over time, ignoring migration.</p></div>
+  </div>
+
+  <div class="steps">
+    <div class="stepc"><div class="num">1</div><div><b>Part 1 · The United States</b><p>Everyone starts here. Diagnose the U.S. and enact three policies.</p></div></div>
+    <div class="stepc locked"><div class="num">2</div><div><b>Part 2 · A comparison country</b><p>Unlocks after Part 1. Choose South Korea, Japan, China, Hungary, Niger, or Nigeria, then write a comparison.</p></div></div>
+  </div>
+
+  <div class="namerow">
+    <label for="sname">Your name</label>
+    <input type="text" id="sname" placeholder="First and last name" autocomplete="name" oninput="document.getElementById('namewarn').hidden=true">
+    <span class="hint">It goes on your final report.</span>
+    <span class="namewarn" id="namewarn" hidden>Type your name before you start.</span>
+  </div>
+
+  <div id="usstart"></div>
+
+  <details class="teacher card noprint">
+    <summary>For teachers: how the model works</summary>
+    <ul>
+      <li>Students complete the United States first (Part 1), then choose one comparison country (Part 2). The final report puts both side by side with three comparison reflection questions.</li>
+      <li>Each round projects the population forward 10 years using a simplified cohort-component model (5-year age groups, male/female, age-specific survival and fertility).</li>
+      <li>Each policy shifts the TFR by an amount scaled to real-world evidence: cash incentives in low-fertility countries have small effects; girls’ education, ending child marriage, and contraceptive access have larger effects in high-fertility countries. Effects are cumulative and start immediately — real policies take years.</li>
+      <li>Every option in a country matches its goal (all pronatalist or all antinatalist); options differ in strength, so students predict which will work best and compare results.</li>
+      <li>Starting pyramids use approximate 2025 age structures; headline figures (births, TFR) reflect 2025 national statistics. Some countries also have an underlying fertility trend (e.g., China −0.05 per decade), and population momentum means a policy can push fertility the right way while the base still moves the other way — the results screen explains this when it happens.</li>
+      <li>Immigration is modeled only for the United States, held constant at about 1 million net migrants per year, mostly young adults. Students can’t change it; it’s there so the U.S. pyramid behaves realistically and to set up the comparison question about why the U.S. keeps growing with a TFR below 2.1. Other countries are modeled without migration.</li>
+      <li>Students finish with a report they can copy into Google Classroom or print to PDF. Nothing is saved, so they should submit before closing the tab.</li>
+    </ul>
+  </details>
+</section>
+
+<!-- BETWEEN PARTS -->
+<section id="between" hidden>
+  <div class="card" id="betweenbody"></div>
+</section>
+
+<!-- GAME -->
+<section id="game" hidden>
+  <div class="gamehead">
+    <div>
+      <div class="eyebrow" id="g-region"></div>
+      <h2 id="g-name"></h2>
+    </div>
+    <div class="pills">
+      <span class="pill">Year <b id="g-year"></b></span>
+      <span class="pill" id="g-round"></span>
+      <button class="linkbtn noprint" id="chg" onclick="goHome()">Start over</button>
+    </div>
+  </div>
+  <div class="layout">
+    <div class="card pyrcard">
+      <div class="pyrtitle">
+        <h3>Population pyramid, <span id="p-year"></span></h3>
+        <span class="shape" id="p-shape"></span>
+      </div>
+      <svg id="pyr" viewBox="0 0 560 470" role="img" aria-label="Population pyramid"></svg>
+      <div class="legend">
+        <span><i class="sw" style="background:var(--teal)"></i>Male</span>
+        <span><i class="sw" style="background:var(--gold)"></i>Female</span>
+        <span><i class="sw" style="border:1.5px dashed var(--navy);background:none"></i>2025 starting shape</span>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="card panel" id="panel"></div>
+  </div>
+</section>
+
+<!-- REPORT -->
+<section id="report" hidden>
+  <div class="card rep" id="rep"></div>
+</section>
+</main>
+
+<footer>Figures are approximate (2025 national statistics and UN estimates; U.S. births from CDC). The projection is a simplified classroom model, not a forecast.</footer>
+
+<script>
+/* ---------- MODEL ---------- */
+const AGES=["0–4","5–9","10–14","15–19","20–24","25–29","30–34","35–39","40–44","45–49","50–54","55–59","60–64","65–69","70–74","75–79","80+"];
+const SURV={
+  low:{birth:0.996,s:[0.999,0.999,0.999,0.998,0.998,0.997,0.997,0.996,0.994,0.991,0.986,0.979,0.968,0.951,0.92,0.86,0.55]},
+  high:{birth:0.89,s:[0.96,0.985,0.988,0.985,0.982,0.979,0.975,0.97,0.963,0.952,0.937,0.914,0.88,0.83,0.76,0.66,0.40]}
+};
+const FERT={low:[0.04,0.17,0.32,0.30,0.14,0.03,0.00],high:[0.12,0.22,0.22,0.19,0.14,0.08,0.03]};
+const MIGP=[0.05,0.04,0.04,0.07,0.16,0.18,0.15,0.10,0.07,0.05,0.04,0.03,0.02,0.015,0.01,0.005,0.005];
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const sum=(a,i=0,j=a.length-1)=>{let s=0;for(let k=i;k<=j;k++)s+=a[k];return s};
+
+function maleFrac(i,c){
+  if(i<=3) return c.sexYoung;
+  if(i<=9) return 0.505;
+  if(i<=12) return 0.495;
+  return [0.475,0.455,0.43,0.37][i-13];
+}
+function initPop(c){
+  const T=c.pop*1e6, S=sum(c.shares), M=[],F=[];
+  c.shares.forEach((s,i)=>{const n=T*s/S, mf=maleFrac(i,c); M.push(n*mf); F.push(n*(1-mf));});
+  return {M,F};
+}
+function step(p,tfr,srb,c){
+  const sv=SURV[c.mort], fs=FERT[c.fert], M=Array(17).fill(0), F=Array(17).fill(0);
+  for(let i=0;i<16;i++){M[i+1]+=p.M[i]*sv.s[i]*(i>=10?0.985:1);F[i+1]+=p.F[i]*sv.s[i];}
+  M[16]+=p.M[16]*sv.s[16]*0.985; F[16]+=p.F[16]*sv.s[16];
+  if(c.mig){const tot=sum(MIGP); for(let i=0;i<17;i++){const n=c.mig*1e6*5*MIGP[i]/tot; M[i]+=n*0.5; F[i]+=n*0.5;}}
+  let B=0; for(let j=0;j<7;j++) B+=((p.F[3+j]+F[3+j])/2)*tfr*fs[j];
+  const pm=srb/(1+srb); M[0]=B*pm*sv.birth; F[0]=B*(1-pm)*sv.birth;
+  return {M,F};
+}
+function births(p,c){return (p.M[0]+p.F[0])/5/SURV[c.mort].birth}
+function fmtN(n){return n>=1e6?(n/1e6).toFixed(n>=1e7?1:2)+"M":Math.round(n/1e3)+"K"}
+function pcts(p){const T=sum(p.M)+sum(p.F);return {m:p.M.map(v=>v/T*100),f:p.F.map(v=>v/T*100)}}
+function stats(p){
+  const tot=p.M.map((v,i)=>v+p.F[i]), T=sum(tot);
+  const u15=sum(tot,0,2), o65=sum(tot,13,16), wa=T-u15-o65;
+  let cum=0, med=0;
+  for(let i=0;i<17;i++){ if(cum+tot[i]>=T/2){ med=5*i+((T/2-cum)/tot[i])*(i===16?15:5); break;} cum+=tot[i]; }
+  const r=tot[0]/((tot[5]+tot[6])/2);
+  const shape=r>1.15?"Expansive":r<0.85?"Constrictive":"Stationary";
+  return {T, u15:u15/T*100, o65:o65/T*100, dep:(u15+o65)/wa*100, med, shape, base:tot[0]/T*100};
+}
+
+/* ---------- COUNTRY DATA ---------- */
+const COUNTRIES={
+usa:{momentum:"Most immigrants arrive as young adults, not babies, so each year the U.S. adds people to the middle of the pyramid. That makes ages 0–4 a smaller <i>share</i> of the total, even when the number of babies holds steady. Demographers also point to <b>population momentum</b>: the large Millennial generation is aging past its peak childbearing years.",
+ name:"United States",region:"North America",pop:342,tfr:1.60,drift:-0.02,mort:"low",fert:"low",srb:1.05,sexYoung:0.511,need:"pro",mig:1.0,
+ shares:[5.3,5.8,6.2,6.5,6.4,6.6,6.9,6.8,6.5,6.0,6.0,6.1,6.3,5.6,4.7,3.4,4.0],
+ teaser:"Below replacement, but still growing.",
+ brief:"The U.S. recorded about 3.6 million births in 2025, down 1% from 2024, and its fertility rate is about 1.6 — near a record low and below replacement (2.1). Americans are marrying and having children later, and teen births hit a record low. Even so, the U.S. population is still growing, mainly because of immigration. The U.S. is one of the only wealthy countries with no national paid parental leave, and in many states a year of infant daycare costs more than a year of in-state college tuition.",
+ needWhy:"The U.S. TFR (~1.6) is below replacement, and the base of its pyramid is narrower than the age groups above it — a slightly constrictive shape. The problem is much milder than in South Korea or Japan, and immigration keeps the population growing, but the federal government has begun adopting <b>pronatalist</b> policies to encourage births.",
+ rounds:[
+  {title:"The cost of raising kids",sit:"Raising a child to age 18 costs American families hundreds of thousands of dollars, and many young adults say they can’t afford children yet. Congress is debating family tax policy.",options:[
+   {n:"Bigger child tax credit",d:"Raise the tax credit families get for each child under 17.",t:"pro",e:0.03,note:"The 2025 One Big Beautiful Bill Act raised the Child Tax Credit to $2,200 per child. A temporary expanded credit in 2021 sharply cut child poverty, but researchers found little effect on births."},
+   {n:"“Trump Accounts” for newborns",d:"The government deposits $1,000 into an investment account for every baby, which the child can use at age 18.",t:"pro",e:0.01,note:"Created by the 2025 One Big Beautiful Bill Act for babies born 2025–2028; parents can add up to $5,000 a year. Because the amount is small and arrives 18 years later, demographers expect little effect on births."},
+   {n:"$5,000 baby bonus",d:"Pay every mother a one-time $5,000 cash bonus when her baby is born.",t:"pro",e:0.02,note:"The White House considered a $5,000 “baby bonus” in 2025 but did not enact it. Australia paid a baby bonus from 2004 to 2014 and saw only a small, short-lived bump in births."}]},
+  {title:"Work and family",sit:"In most U.S. families with young children, both parents work. There is no national paid parental leave, and childcare is expensive and hard to find.",options:[
+   {n:"National paid family leave",d:"Guarantee every new parent 12 weeks of paid leave.",t:"pro",e:0.05,note:"The U.S. is the only wealthy country without national paid parental leave. More than a dozen states, plus Washington, D.C., have created their own paid family leave programs."},
+   {n:"Free childcare for all families",d:"Make childcare free for every family, regardless of income.",t:"pro",e:0.05,note:"In November 2025 New Mexico became the first U.S. state to offer free childcare to all families, regardless of income."},
+   {n:"Protections for pregnant workers",d:"Require employers to give pregnant workers reasonable accommodations, like breaks and lighter duties.",t:"pro",e:0.01,note:"The Pregnant Workers Fairness Act took effect in 2023. It protects workers’ health and jobs, but its effect on the national birth rate is likely small."}]},
+  {title:"Starting a family",sit:"Americans are having children later — the average first-time mother is now over 27 — and many couples face infertility or high housing costs.",options:[
+   {n:"Cheaper IVF",d:"Cut the price of fertility drugs and make it easier for employers to cover IVF.",t:"pro",e:0.02,note:"In October 2025 the White House announced discounts on some IVF drugs and guidance making it easier for employers to offer fertility benefits. Most U.S. couples pay for IVF themselves — often $15,000 or more per cycle."},
+   {n:"Affordable starter homes",d:"Fund construction of lower-cost starter homes for young families.",t:"pro",e:0.03,note:"High housing costs are linked to delayed marriage and childbearing. Economists have found that when home prices rise, renters have fewer children."},
+   {n:"National Medal of Motherhood",d:"Award a national medal to mothers who have six or more children.",t:"pro",e:0.01,note:"The administration considered this idea in 2025. The Soviet Union’s “Mother Heroine” medal is a historical example. Symbolic honors get attention but have little measurable effect on birth rates."}]}
+ ]},
+skorea:{momentum:"South Korea has fewer women in their 20s and 30s every decade — they were born during earlier low-birth years — so the number of babies can keep falling even when each woman has slightly more children. Demographers call this <b>population momentum</b>.",name:"South Korea",region:"East Asia",pop:51.7,tfr:0.80,drift:0,mort:"low",fert:"low",srb:1.05,sexYoung:0.512,need:"pro",
+ shares:[2.3,3.6,4.5,4.4,5.0,6.6,6.5,6.3,7.4,7.8,8.4,8.2,8.1,6.6,4.8,3.6,5.6],
+ teaser:"World’s lowest fertility rate.",
+ brief:"South Korea has the lowest fertility rate in the world. It fell to a record low of 0.72 in 2023 and rebounded only to about 0.80 in 2025 — far below replacement (2.1). More people die each year than are born, and the country is aging faster than almost anywhere on Earth. High housing costs, long work hours, and expensive private tutoring lead many young couples to delay or skip having children.",
+ needWhy:"South Korea’s TFR (~0.8) is far below replacement (2.1), and its pyramid is narrow at the bottom and wide in the middle and top — a constrictive shape. Too few births means a shrinking workforce supporting a growing elderly population. It needs <b>pronatalist</b> policies.",
+ rounds:[
+  {title:"Children cost too much",sit:"Surveys show young Koreans want children but say they can’t afford them. The finance ministry has budget for one major program.",options:[
+   {n:"Monthly parent allowance",d:"Pay families a large monthly cash allowance for every baby under age 2.",t:"pro",e:0.04,note:"South Korea already pays families about ₩1 million per month for babies under 1. Since 2006 the government has spent well over $200 billion on birth-boosting programs, yet fertility kept falling until 2024 — cash alone rarely changes births much."},
+   {n:"Cap private tutoring costs",d:"Limit the hours and fees of private cram schools (hagwons) so raising a child costs less.",t:"pro",e:0.03,note:"Korean parents spend heavily on private tutoring, and many say education costs are a main reason they stop at one child or have none. The government has repeatedly tried to rein in hagwon costs."},
+   {n:"Free daycare and after-school care",d:"Guarantee free, high-quality public daycare and after-school programs for every child.",t:"pro",e:0.06,note:"Korea made daycare free for children ages 0–5 in 2013. Research suggests reliable childcare helps more than one-time cash, especially for working mothers."}]},
+  {title:"Work culture",sit:"Korea has some of the longest working hours in the developed world, and many women leave their jobs after having a child.",options:[
+   {n:"Mandatory paid leave for fathers",d:"Require every new father to take three months of paid parental leave — use it or lose it.",t:"pro",e:0.06,note:"In Nordic countries, “use-it-or-lose-it” leave for fathers shares childcare more equally. Korea has expanded paid parental leave, but many fathers fear taking it will hurt their careers."},
+   {n:"Tax-free company baby bonuses",d:"Make cash that employers pay workers for having a baby completely tax-free.",t:"pro",e:0.03,note:"In 2024 the Korean company Booyoung Group began paying employees ₩100 million (about $70,000) per baby, and the government responded by making employer childbirth bonuses tax-free."},
+   {n:"Housing for new parents",d:"Give couples who have a baby priority for public apartments and low-interest mortgages.",t:"pro",e:0.05,note:"Korea offers special mortgages and public housing to newlyweds and couples with newborns. Housing costs are one of the top reasons young Koreans give for not having kids."}]},
+  {title:"A long-term plan",sit:"In 2024 the president declared a “national demographic emergency.” Lawmakers want one final, lasting reform.",options:[
+   {n:"Newlywed starter grants",d:"Give young couples a cash grant and housing help when they marry.",t:"pro",e:0.03,note:"In Korea almost all births happen within marriage, and marriage rates fell for years. Some local governments now pay cash to newlyweds, and the post-COVID rise in marriages helped births rebound in 2024–2025."},
+   {n:"Fully funded fertility treatment",d:"Cover the full cost of IVF and other fertility treatments for any couple.",t:"pro",e:0.04,note:"Korea subsidizes fertility treatments. This helps couples who want children but face infertility, though the effect on the national rate is usually small."},
+   {n:"Population strategy ministry + flexible work",d:"Create a ministry to coordinate all family policy and require employers to offer flexible hours to parents.",t:"pro",e:0.05,note:"After declaring the 2024 emergency, Korea announced plans for a dedicated population strategy ministry to coordinate policy across the government."}]}
+ ]},
+japan:{momentum:"Japan has fewer women in their prime childbearing years every decade, because they were born during earlier low-birth years. Even if each woman has slightly more children, there are fewer mothers. Demographers call this <b>population momentum</b>.",name:"Japan",region:"East Asia",pop:123,tfr:1.15,drift:-0.02,mort:"low",fert:"low",srb:1.05,sexYoung:0.512,need:"pro",
+ shares:[2.9,3.9,4.2,4.4,4.9,5.0,5.0,5.6,6.2,7.4,7.8,6.6,6.0,6.0,7.3,6.2,10.1],
+ teaser:"Births at a 126-year low.",
+ brief:"Japan recorded about 706,000 births in 2025 — the fewest since records began in 1899 and the tenth record low in a row. Roughly 3 in 10 Japanese are 65 or older, and deaths outnumbered births by about 900,000. The government created a Children and Families Agency in 2023 to try to reverse the trend.",
+ needWhy:"Japan’s TFR (~1.15) is well below replacement, and its pyramid is top-heavy, with more people in their 70s than toddlers — a constrictive shape. Japan needs <b>pronatalist</b> policies to slow population decline and aging.",
+ rounds:[
+  {title:"Raising kids is expensive",sit:"Inflation is squeezing young families, and many couples stop at one child because of education costs.",options:[
+   {n:"Child allowance through high school",d:"Expand monthly child allowances to every child through age 18, with no income limit.",t:"pro",e:0.04,note:"In 2024 Japan expanded its child allowance to cover children through high-school age and removed income limits."},
+   {n:"Free college for big families",d:"Make university tuition free for families raising three or more children.",t:"pro",e:0.03,note:"Starting in 2025, Japan began waiving university tuition for families with three or more dependent children."},
+   {n:"Free school lunches",d:"Make lunch free at every public elementary and middle school.",t:"pro",e:0.02,note:"Tokyo made public school lunches free in 2024, and Japan’s national government has moved toward free elementary school lunches nationwide. Small savings like this add up for families with several children."}]},
+  {title:"Time to be a parent",sit:"Japanese workers, especially women, say long hours make raising children nearly impossible.",options:[
+   {n:"Flexible work for parents",d:"Require companies to offer remote work or shorter hours to parents of young children.",t:"pro",e:0.05,note:"A 2024 law change requires employers to offer flexible options, like remote work or shorter hours, to parents of young children (phased in during 2025)."},
+   {n:"Bigger allowance for third children",d:"Triple the monthly child allowance for a family’s third child and beyond.",t:"pro",e:0.03,note:"In 2024 Japan raised the child allowance for third and later children to ¥30,000 per month, three times the amount for a first child, to encourage larger families."},
+   {n:"Four-day workweek option",d:"Let government employees choose a four-day workweek so they have more time for family.",t:"pro",e:0.03,note:"In April 2025 the Tokyo Metropolitan Government offered its employees a four-day workweek, partly to help parents and encourage births."}]},
+  {title:"Fewer marriages",sit:"In Japan nearly all children are born to married couples, but marriage rates keep falling.",options:[
+   {n:"Full-pay leave when both parents take it",d:"Pay 100% of take-home pay for a short leave when both the mother and father take parental leave.",t:"pro",e:0.04,note:"Since 2025 Japan has raised parental leave benefits to about 100% of take-home pay for up to 28 days when both parents take leave, mainly to get more fathers to take time off."},
+   {n:"Government matchmaking app",d:"Launch a free, government-run dating app with identity checks to help singles meet.",t:"pro",e:0.02,note:"Tokyo launched a government-run matchmaking app in 2024. Because almost all Japanese births happen within marriage, fewer marriages means fewer babies."},
+   {n:"Childbirth cash grant",d:"Give every family a one-time cash payment of about ¥500,000 when a baby is born.",t:"pro",e:0.03,note:"Japan pays a one-time childbirth allowance, raised to ¥500,000 in 2023, to cover the cost of delivery."}]}
+ ]},
+china:{momentum:"This is the One-Child Policy echo. The generation born under birth limits was small, so fewer women are entering their prime childbearing years each decade. Even a slightly higher fertility rate produces fewer babies. Demographers call this <b>population momentum</b>.",name:"China",region:"East Asia",pop:1405,tfr:1.0,drift:-0.05,mort:"low",fert:"low",srb:1.11,sexYoung:0.53,need:"pro",
+ shares:[3.3,5.6,6.6,5.9,5.4,5.6,7.9,8.4,6.7,6.8,8.8,8.4,6.4,5.6,4.2,2.0,1.7],
+ teaser:"From one-child limits to baby subsidies.",
+ brief:"China ran a One-Child Policy from 1980 to 2015. Today the problem is the opposite: births fell to about 7.9 million in 2025, the lowest on record, and the population shrank for the fourth straight year. Decades of son preference also left more boys than girls in younger age groups. In 2025 China launched its first nationwide childcare subsidy.",
+ needWhy:"China’s TFR (~1.0) is about half of replacement, and its pyramid is narrowing at the bottom while a huge bulge of middle-aged adults moves toward retirement — a constrictive shape. China now needs <b>pronatalist</b> policies.",
+ rounds:[
+  {title:"Births hit a record low",sit:"Leaders want quick action after another year of falling births.",options:[
+   {n:"Daycare for babies and toddlers",d:"Build public daycare centers for children under age 3, which are scarce in China.",t:"pro",e:0.04,note:"Affordable care for children under 3 is one of China’s biggest gaps — many families rely on grandparents. Expanding daycare for this age group is a national goal in China’s birth-support plans."},
+   {n:"National childcare subsidy",d:"Pay families 3,600 yuan (about $500) per year for each child under age 3.",t:"pro",e:0.03,note:"China launched exactly this subsidy in 2025. Analysts warned it was too small to reverse the trend on its own."},
+   {n:"Free childbirth",d:"Use national health insurance to cover all basic hospital costs of giving birth.",t:"pro",e:0.03,note:"China has pledged to cover nearly all basic out-of-pocket childbirth costs through its health insurance system."}]},
+  {title:"Young people delay families",sit:"Young urban Chinese face high housing costs and long work hours, and many are choosing not to marry.",options:[
+   {n:"Longer marriage and maternity leave",d:"Give newlyweds a month of paid marriage leave and extend paid maternity leave.",t:"pro",e:0.04,note:"Many Chinese provinces have extended marriage leave and maternity leave to encourage family formation."},
+   {n:"Free preschool",d:"Waive fees for public kindergarten so families spend less raising each child.",t:"pro",e:0.03,note:"In 2025 China began waiving fees for the final year of public kindergarten."},
+   {n:"Insurance coverage for IVF",d:"Add fertility treatments like IVF to public medical insurance.",t:"pro",e:0.03,note:"In 2023 Beijing became the first Chinese region to cover assisted reproduction under public medical insurance, and other provinces have followed."}]},
+  {title:"Making family life affordable",sit:"Rural young men struggle to marry, and urban couples say a second child means a bigger apartment they can’t afford.",options:[
+   {n:"Cap “bride prices”",d:"Campaign against very high bride prices that make marriage unaffordable in rural areas.",t:"pro",e:0.02,note:"Chinese authorities have campaigned against high bride prices (caili), which can cost a family several years of income in rural areas."},
+   {n:"End the “996” work schedule",d:"Enforce limits on 9am–9pm, six-days-a-week work schedules so parents have time for children.",t:"pro",e:0.03,note:"China’s top court declared the “996” schedule (9am to 9pm, six days a week) illegal in 2021, but long hours remain common, and young workers say they leave no time for a family."},
+   {n:"Housing help for 2+ children",d:"Give home-buying subsidies and bigger mortgages to families with two or more children.",t:"pro",e:0.04,note:"Many Chinese cities now offer home-buying subsidies or higher mortgage limits to families with two or three children."}]}
+ ]},
+hungary:{momentum:"Hungary has fewer women in their prime childbearing years than a generation ago, and emigration takes away young adults. Fewer potential mothers means fewer babies, even when each woman has slightly more children. Demographers call this <b>population momentum</b>.",name:"Hungary",region:"Central Europe",pop:9.55,tfr:1.40,drift:-0.02,mort:"low",fert:"low",srb:1.05,sexYoung:0.512,need:"pro",
+ shares:[4.2,4.8,5.0,4.9,5.0,5.6,5.9,6.6,7.8,8.2,6.6,6.0,6.0,6.6,5.8,4.0,5.6],
+ teaser:"Europe’s biggest family-policy spender.",
+ brief:"Hungary’s population has been shrinking since the early 1980s. Its fertility rate is about 1.4 — below replacement — and many young Hungarians move to Western Europe for work. The government spends roughly 5% of its GDP on family support, one of the highest shares in the world, and openly prefers raising births over increasing immigration.",
+ needWhy:"Hungary’s TFR (~1.4) is below replacement, its pyramid is narrower at the base than in the middle, and emigration takes away young adults. It needs <b>pronatalist</b> policies.",
+ rounds:[
+  {title:"Paying parents",sit:"The government wants a signature policy that rewards mothers.",options:[
+   {n:"Lifetime tax exemption for mothers",d:"Mothers of two or more children never pay personal income tax again.",t:"pro",e:0.05,note:"Hungary is phasing in a lifetime personal income tax exemption for mothers — first mothers of three, then mothers of two, in stages through the late 2020s."},
+   {n:"Double the family tax allowance",d:"Double the monthly tax break families receive for each child.",t:"pro",e:0.04,note:"Hungary began doubling its family tax allowance in two steps in 2025–2026."},
+   {n:"“Baby-expecting” loan",d:"Married couples get a large interest-free loan; part is forgiven after a second child and all after a third.",t:"pro",e:0.04,note:"Hungary launched this loan in 2019. Couples can borrow about 10 million forints interest-free, with forgiveness tied to having more children."}]},
+  {title:"Housing and health",sit:"Couples say they can’t afford a home big enough for kids, and some struggle with infertility.",options:[
+   {n:"Seven-seat car subsidy",d:"Help families with three or more children buy a seven-seat vehicle.",t:"pro",e:0.02,note:"Hungary subsidizes the purchase of seven-seat cars for large families — a small but very visible signal that the government values big families."},
+   {n:"Home loans for growing families",d:"Offer low-interest mortgages to married couples who plan to have children.",t:"pro",e:0.04,note:"Hungary’s CSOK Plus program offers low-interest home loans to married couples who commit to having children."},
+   {n:"Free IVF",d:"Make fertility treatment free at state clinics.",t:"pro",e:0.03,note:"Hungary took over the country’s private fertility clinics in 2019 and made IVF free at state clinics."}]},
+  {title:"Returning to work",sit:"Mothers want to return to work, but there aren’t enough nursery spots for babies and toddlers.",options:[
+   {n:"Pay grandparents for childcare",d:"Let grandparents receive childcare payments for caring for a grandchild so parents can work.",t:"pro",e:0.02,note:"Hungary lets working grandparents receive a childcare payment for caring for a grandchild."},
+   {n:"Expand nurseries",d:"Build thousands of new public nursery spots for children under 3.",t:"pro",e:0.04,note:"Hungary has rapidly expanded nursery (bölcsőde) places for children under 3."},
+   {n:"Student loan forgiveness for mothers",d:"Cancel part of a woman’s student loan when she has a child, and all of it after a third.",t:"pro",e:0.03,note:"Hungary forgives student loan debt for mothers, partly after a second child and fully after a third, to encourage educated women to have children earlier."}]}
+ ]},
+niger:{momentum:"So many girls are already alive and entering their childbearing years that births keep rising for decades, even as each woman has fewer children. Demographers call this <b>population momentum</b>.",name:"Niger",region:"West Africa · Sahel",pop:27,tfr:6.1,drift:-0.25,mort:"high",fert:"high",srb:1.05,sexYoung:0.505,need:"anti",
+ shares:[18.0,16.0,13.2,10.8,8.6,7.0,5.8,4.8,3.9,3.1,2.4,1.8,1.3,0.9,0.6,0.4,0.4],
+ teaser:"World’s highest fertility rate.",
+ brief:"Niger has the highest fertility rate in the world — about 6 children per woman. Half the population is under 15, and the population could roughly double in about 20 years. Most girls marry before age 18, few finish school, and many families see many children as security. Rapid growth strains schools, clinics, food supply, and jobs in a country on the edge of the Sahara.",
+ needWhy:"Niger’s TFR (~6) is nearly three times replacement, and its pyramid has a very wide base — a classic expansive shape. Growth this fast outpaces schools, health care, food, and jobs. Niger needs <b>antinatalist</b> policies.",
+ rounds:[
+  {title:"Girls and marriage",sit:"About 3 in 4 girls in Niger marry before age 18, and most leave school early.",options:[
+   {n:"Keep girls in school; end child marriage",d:"Make secondary school free for girls and enforce a minimum marriage age of 18.",t:"anti",e:-0.35,note:"Niger has one of the highest child-marriage rates in the world. Worldwide, keeping girls in school is one of the strongest ways to lower fertility: women marry later and have fewer, healthier children."},
+   {n:"Birth-spacing counseling",d:"Train midwives to counsel every pregnant woman about spacing her next birth by at least two years.",t:"anti",e:-0.12,note:"Spacing births at least two years apart is safer for mothers and babies, and it also lowers the total number of children a woman has over her lifetime."},
+   {n:"Free contraception in rural clinics",d:"Train community health workers to provide free birth control in every village.",t:"anti",e:-0.25,note:"Fewer than 1 in 5 married women in Niger use modern contraception. Many women say they want to space births but can’t reach a clinic."}]},
+  {title:"Changing community norms",sit:"In many villages, husbands and elders make decisions about family size.",options:[
+   {n:"“Schools for Husbands”",d:"Train respected married men to talk with other men in their village about maternal health and birth spacing.",t:"anti",e:-0.15,note:"UNFPA’s “Écoles des maris” program in Niger does exactly this, using trusted men to promote health clinic visits and birth spacing."},
+   {n:"Literacy classes for adult women",d:"Offer free reading and numeracy classes for women in every village.",t:"anti",e:-0.10,note:"Women who can read are more likely to use health services and have a say in family decisions. Fewer than 1 in 4 Nigerien women can read."},
+   {n:"Family planning radio drama",d:"Fund a popular radio soap opera whose characters show the benefits of smaller families and birth spacing.",t:"anti",e:-0.12,note:"Radio dramas promoting family planning have been used in Niger, Mexico, and elsewhere. Radio reaches rural areas where few adults can read."}]},
+  {title:"Health and economy",sit:"Parents often have many children partly because many children die young.",options:[
+   {n:"A small pension for older adults",d:"Pay a small monthly pension to people over 65 so parents don’t need many children to support them in old age.",t:"anti",e:-0.10,note:"In places without pensions, many children are a form of old-age security. Countries that introduced old-age support often saw that motive for large families weaken."},
+   {n:"Vaccines and child health",d:"Vaccinate every child and staff clinics so far fewer children die before age 5.",t:"anti",e:-0.12,note:"This links to the Demographic Transition Model: when parents trust their children will survive, they tend to have fewer. In the short run, though, more surviving children can widen the base."},
+   {n:"Jobs and loans for women",d:"Offer job training and small business loans to women.",t:"anti",e:-0.12,note:"Women who earn their own income often gain more say in family-size decisions and have fewer children."}]}
+ ]},
+nigeria:{momentum:"So many girls are already alive and entering their childbearing years that births keep rising for decades, even as each woman has fewer children. Demographers call this <b>population momentum</b>.",name:"Nigeria",region:"West Africa",pop:230,tfr:4.8,drift:-0.25,mort:"high",fert:"high",srb:1.05,sexYoung:0.506,need:"anti",
+ shares:[15.5,13.8,12.2,10.6,9.0,7.8,6.6,5.6,4.6,3.7,3.0,2.3,1.8,1.3,0.9,0.6,0.4],
+ teaser:"Africa’s giant, still growing fast.",
+ brief:"Nigeria is Africa’s most populous country, with about 230 million people, and is projected to be among the most populous countries on Earth by 2050. Its fertility rate is about 4.8 children per woman — lower in cities like Lagos, much higher in the rural north. The government’s National Population Policy aims to lower fertility so schools, health care, and jobs can keep up.",
+ needWhy:"Nigeria’s TFR (~4.8) is more than double replacement, and its pyramid has a wide base — an expansive shape. Its population is growing faster than schools and jobs can expand. Nigeria needs <b>antinatalist</b> policies.",
+ rounds:[
+  {title:"National population goals",sit:"Nigeria’s population policy sets targets for lowering fertility, but access to family planning is uneven.",options:[
+   {n:"Family planning in every clinic",d:"Stock free contraceptives and trained staff in every primary health center.",t:"anti",e:-0.25,note:"Nigeria’s revised National Population Policy (2021) aims to lower fertility and raise contraceptive use, but funding and access remain uneven, especially in the north."},
+   {n:"Tax relief for up to four children only",d:"Families get child tax relief for their first four children, but nothing beyond that.",t:"anti",e:-0.06,note:"Capping benefits at a set number of children nudges families to stay smaller. Nigeria’s 2004 population policy promoted a goal of four children per woman."},
+   {n:"Contraception right after childbirth",d:"Offer every new mother family planning before she leaves the hospital or clinic.",t:"anti",e:-0.10,note:"Postpartum family planning is recommended by the World Health Organization because the months after a birth are when many women want to delay their next pregnancy but lack access."}]},
+  {title:"Education and marriage",sit:"Nigeria has one of the world’s largest populations of out-of-school children, concentrated in the north, where many girls marry young.",options:[
+   {n:"Pay clinics for family planning results",d:"Give health centers extra funding for each woman they help with family planning.",t:"anti",e:-0.08,note:"Nigeria has used performance-based financing in health care, paying clinics for results, to improve services in underserved states."},
+   {n:"Free school for girls",d:"Make school free through grade 9 and pay families a small stipend to keep daughters enrolled.",t:"anti",e:-0.25,note:"In Nigeria, women with secondary education have roughly half as many children as women with no schooling."},
+   {n:"Minimum marriage age of 18 everywhere",d:"Require every state to adopt and enforce 18 as the minimum age of marriage.",t:"anti",e:-0.12,note:"Nigeria’s Child Rights Act sets 18 as the minimum marriage age, but several northern states have not adopted it."}]},
+  {title:"Reaching more people",sit:"Most Nigerians have a mobile phone, and religious and traditional leaders are highly trusted.",options:[
+   {n:"Free long-acting contraceptives",d:"Make implants and injectables free nationwide, since they last months or years.",t:"anti",e:-0.10,note:"Long-acting methods such as implants are popular in Nigeria because they don’t require daily use or frequent clinic visits."},
+   {n:"Faith and traditional leaders as champions",d:"Partner with imams, pastors, and traditional rulers to support child spacing.",t:"anti",e:-0.12,note:"In northern Nigeria, programs that partner with religious and traditional leaders to support child spacing have increased acceptance of family planning."},
+   {n:"Family planning by text and pharmacy",d:"Send health information by text message and let local pharmacies provide contraceptives.",t:"anti",e:-0.10,note:"Phones and local medicine shops reach people who live far from clinics, making contraception easier to access."}]}
+ ]}
+};
+
+/* ---------- HOME ---------- */
+const R={name:"",us:null,cmp:null};
+const OTHERS=Object.keys(COUNTRIES).filter(k=>k!=="usa");
+function miniPyr(c){
+  const p=pcts(initPop(c)); const mx=Math.max(...p.m,...p.f); const W=110,H=78,cx=55,rh=H/17;
+  let s=`<svg viewBox="0 0 ${W} ${H}" width="110" height="78" aria-hidden="true">`;
+  for(let i=0;i<17;i++){const y=H-(i+1)*rh, wm=p.m[i]/mx*50, wf=p.f[i]/mx*50;
+    s+=`<rect x="${cx-1-wm}" y="${y+0.4}" width="${wm}" height="${rh-0.8}" fill="#0F8B8D"/><rect x="${cx+1}" y="${y+0.4}" width="${wf}" height="${rh-0.8}" fill="#E0A526"/>`;}
+  return s+"</svg>";
+}
+function ccard(k){const c=COUNTRIES[k];return `
+    <button class="ccard" onclick="startGame('${k}')">
+      <div><div class="reg">${c.region}</div><h3>${c.name}</h3>
+      <div class="nums">Pop. <b>${fmtPop(c.pop)}</b> · TFR <b>${c.tfr.toFixed(2)}</b></div>
+      <div class="teaser">${c.teaser}</div></div>
+      ${miniPyr(c)}
+    </button>`;}
+function renderHome(){
+  const c=COUNTRIES.usa;
+  document.getElementById("usstart").innerHTML=`
+    <button class="ccard usstart" onclick="startUS()">
+      <div><div class="reg">Part 1 · ${c.region}</div><h3>${c.name}</h3>
+      <div class="nums">Pop. <b>${fmtPop(c.pop)}</b> · TFR <b>${c.tfr.toFixed(2)}</b></div>
+      <div class="teaser">${c.teaser}</div><span class="go">Start Part 1 →</span></div>
+      ${miniPyr(c).replace('width="110" height="78"','width="150" height="106"')}
+    </button>`;
+}
+function startUS(){
+  const n=document.getElementById("sname").value.trim();
+  if(!n){const w=document.getElementById("namewarn");w.hidden=false;document.getElementById("sname").focus();return;}
+  R.name=n; R.us=null; R.cmp=null; startGame("usa");
+}
+function snap(){return {key:S.key,c:S.c,start:S.start,pop:S.pop,bpop:S.bpop,tfr:S.tfr,btfr:S.btfr,history:S.history,needFirst:S.needFirst};}
+function scoreOf(r){return (r.needFirst?1:0)+r.history.filter(h=>h.firstTry).length;}
+function miniCompare(start,end,w=300,h=210){
+  const a=pcts(start), b=pcts(end), mx=Math.max(...a.m,...a.f,...b.m,...b.f)*1.05;
+  const cx=w/2, gap=16, half=cx-gap-4, top=4, rh=(h-top-4)/17;
+  let s=`<svg viewBox="0 0 ${w} ${h}" role="img" aria-label="Pyramid 2025 vs 2055">`;
+  for(let i=0;i<17;i++){const y=top+(16-i)*rh;
+    const em=b.m[i]/mx*half, ef=b.f[i]/mx*half, sm=a.m[i]/mx*half, sf=a.f[i]/mx*half;
+    s+=`<rect x="${cx-gap-em}" y="${y+0.5}" width="${em}" height="${rh-1}" fill="#0F8B8D" rx="1"/>
+        <rect x="${cx+gap}" y="${y+0.5}" width="${ef}" height="${rh-1}" fill="#E0A526" rx="1"/>
+        <rect x="${cx-gap-sm}" y="${y+0.5}" width="${sm}" height="${rh-1}" fill="none" stroke="#13294B" stroke-width="1" stroke-dasharray="3 2"/>
+        <rect x="${cx+gap}" y="${y+0.5}" width="${sf}" height="${rh-1}" fill="none" stroke="#13294B" stroke-width="1" stroke-dasharray="3 2"/>`;
+    if(i%4===0) s+=`<text x="${cx}" y="${y+rh/2+3}" text-anchor="middle" font-size="8.5" fill="#5B6475">${AGES[i]}</text>`;}
+  return s+"</svg>";
+}
+function renderBetween(){
+  const u=R.us, s0=stats(u.start), s1=stats(u.pop);
+  document.getElementById("betweenbody").innerHTML=`
+    <div class="eyebrow">Part 1 complete</div>
+    <h2 style="font-size:2rem">United States, 2025–2055</h2>
+    <div class="twocol" style="grid-template-columns:minmax(0,320px) 1fr;align-items:center">
+      <div>${miniCompare(u.start,u.pop)}<div class="minileg">Solid bars = 2055 · dashed outline = 2025</div></div>
+      <div class="sum" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div class="stat"><div class="k">TFR</div><div class="v">${u.c.tfr.toFixed(2)} → ${u.tfr.toFixed(2)}</div></div>
+        <div class="stat"><div class="k">Population</div><div class="v">${fmtPop(s0.T/1e6)} → ${fmtPop(s1.T/1e6)}</div></div>
+        <div class="stat"><div class="k">65 and over</div><div class="v">${s0.o65.toFixed(1)}% → ${s1.o65.toFixed(1)}%</div></div>
+        <div class="stat"><div class="k">Pyramid shape</div><div class="v" style="font-size:1rem">${s0.shape} → ${s1.shape}</div></div>
+      </div>
+    </div>
+    <div class="fb info">Keep these U.S. results in mind. In Part 2 you’ll advise a country facing a different situation, and your final report will compare the two.</div>
+    <h2 style="font-size:1.6rem;margin-top:18px">Part 2 · Choose a comparison country</h2>
+    <div class="countries">${OTHERS.map(ccard).join("")}</div>
+    <div class="row noprint"><button class="linkbtn" onclick="if(confirm('Replay the United States? Your Part 1 results will be replaced.')) startGame('usa')">Replay the United States</button></div>`;
+}
+function fmtPop(m){return m>=1000?(m/1000).toFixed(2)+" billion":(m>=100?m.toFixed(0):m.toFixed(1))+" million"}
+function show(id){["home","between","game","report"].forEach(s=>document.getElementById(s).hidden=s!==id);window.scrollTo({top:0,behavior:"smooth"})}
+function goHome(){
+  if(S && S.phase!=="done" && !confirm(S.part===1?"Start over? Your U.S. progress will be lost.":"Leave this country? Your Part 2 progress will be lost.")) return;
+  if(S && S.part===2 && R.us){renderBetween();show("between");} else show("home");
+}
+
+/* ---------- PYRAMID ---------- */
+const PY={W:560,H:470,cx:280,gap:24,top:30,bottom:42};
+let BARS=null;
+function calcScale(p){const q=pcts(p);const mx=Math.max(...q.m,...q.f)*1.3;return Math.ceil(mx*2)/2}
+function buildPyramid(scale,ghost){
+  const {W,H,cx,gap,top,bottom}=PY, rh=(H-top-bottom)/17, half=cx-gap-14;
+  let s=`<text x="${cx-gap-half/2}" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#0F8B8D">Male</text>
+         <text x="${cx+gap+half/2}" y="18" text-anchor="middle" font-size="13" font-weight="700" fill="#A87508">Female</text>`;
+  [0,0.5,1].forEach(t=>{const dx=t*half, lab=(scale*t).toFixed(scale*t%1?1:0)+"%";
+    [cx-gap-dx,cx+gap+dx].forEach(x=>{s+=`<line x1="${x}" y1="${top-4}" x2="${x}" y2="${H-bottom}" stroke="#E5DFD2" stroke-width="1"/>
+      <text x="${x}" y="${H-bottom+16}" text-anchor="middle" font-size="11" fill="#5B6475">${lab}</text>`;});});
+  s+=`<text x="${cx}" y="${H-6}" text-anchor="middle" font-size="11" fill="#5B6475">Percent of total population</text>`;
+  for(let i=0;i<17;i++){const y=top+(16-i)*rh;
+    const wm=Math.min(ghost.m[i]/scale,1)*half, wf=Math.min(ghost.f[i]/scale,1)*half;
+    s+=`<rect id="bm${i}" y="${y+1}" height="${rh-2}" fill="#0F8B8D" rx="2"/>
+        <rect id="bf${i}" y="${y+1}" height="${rh-2}" fill="#E0A526" rx="2"/>
+        <rect x="${cx-gap-wm}" y="${y+1}" width="${wm}" height="${rh-2}" fill="none" stroke="#13294B" stroke-width="1.2" stroke-dasharray="4 3" opacity=".7"/>
+        <rect x="${cx+gap}" y="${y+1}" width="${wf}" height="${rh-2}" fill="none" stroke="#13294B" stroke-width="1.2" stroke-dasharray="4 3" opacity=".7"/>
+        <text x="${cx}" y="${y+rh/2+4}" text-anchor="middle" font-size="10.5" fill="#1B2333">${AGES[i]}</text>`;}
+  document.getElementById("pyr").innerHTML=s;
+  BARS={m:[...Array(17)].map((_,i)=>document.getElementById("bm"+i)),f:[...Array(17)].map((_,i)=>document.getElementById("bf"+i)),half,scale};
+}
+function drawBars(p){
+  const {cx,gap}=PY;
+  for(let i=0;i<17;i++){
+    const wm=Math.min(p.m[i]/BARS.scale,1)*BARS.half, wf=Math.min(p.f[i]/BARS.scale,1)*BARS.half;
+    BARS.m[i].setAttribute("x",cx-gap-wm); BARS.m[i].setAttribute("width",Math.max(wm,0));
+    BARS.f[i].setAttribute("x",cx+gap); BARS.f[i].setAttribute("width",Math.max(wf,0));
+  }
+}
+let animId=null;
+function animate(a,b){
+  cancelAnimationFrame(animId); const t0=performance.now(), D=1100;
+  const f=now=>{let k=Math.min(1,(now-t0)/D); k=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;
+    drawBars({m:a.m.map((v,i)=>v+(b.m[i]-v)*k),f:a.f.map((v,i)=>v+(b.f[i]-v)*k)});
+    if(k<1) animId=requestAnimationFrame(f);};
+  animId=requestAnimationFrame(f);
+}
+
+/* ---------- GAME ---------- */
+let S=null;
+const TYPE={pro:"Pronatalist",anti:"Antinatalist"};
+function startGame(key){
+  const c=COUNTRIES[key], p0=initPop(c);
+  S={key,c,part:key==="usa"?1:2,year:2025,round:0,phase:"need",tfr:c.tfr,btfr:c.tfr,srb:c.srb,pop:p0,bpop:p0,start:p0,
+     needFirst:null,needOK:false,needMsg:"",sel:null,attempts:0,classified:false,classMsg:"",just:"",history:[],
+     name:R.name};
+  buildPyramid(calcScale(p0),pcts(p0)); drawBars(pcts(p0));
+  document.getElementById("g-name").textContent=c.name;
+  document.getElementById("g-region").textContent=`Part ${S.part} of 2 · ${c.region}`;
+  document.getElementById("chg").textContent=S.part===1?"Start over":"Change comparison country";
+  show("game"); renderAll();
+}
+function renderAll(){renderHead();renderStats();renderPanel();}
+function renderHead(){
+  document.getElementById("g-year").textContent=S.year;
+  document.getElementById("p-year").textContent=S.year;
+  document.getElementById("g-round").innerHTML=S.phase==="need"?"Diagnosis":`Round <b>${Math.min(S.round+1,3)}</b> of 3`;
+  document.getElementById("p-shape").textContent=stats(S.pop).shape;
+}
+function delta(v,v0,dp,unit,goodUp){
+  const d=v-v0; if(Math.abs(d)<Math.pow(10,-dp)/2) return `<div class="d">no change since 2025</div>`;
+  const cls=goodUp===null?"":((d>0)===goodUp?"up":"down");
+  return `<div class="d ${cls}">${d>0?"▲":"▼"} ${Math.abs(d).toFixed(dp)}${unit} since 2025</div>`;
+}
+function renderStats(){
+  const s=stats(S.pop), s0=stats(S.start), good=S.c.need==="pro";
+  document.getElementById("stats").innerHTML=`
+   <div class="stat"><div class="k">Population</div><div class="v">${fmtPop(s.T/1e6)}</div>${delta(s.T/1e6,s0.T/1e6,1,"M",null)}</div>
+   <div class="stat"><div class="k">TFR</div><div class="v">${S.tfr.toFixed(2)}</div>${delta(S.tfr,S.c.tfr,2,"",good)}</div>
+   <div class="stat"><div class="k">Median age</div><div class="v">${s.med.toFixed(1)}</div>${delta(s.med,s0.med,1," yrs",null)}</div>
+   <div class="stat"><div class="k">Under 15</div><div class="v">${s.u15.toFixed(1)}%</div>${delta(s.u15,s0.u15,1," pts",null)}</div>
+   <div class="stat"><div class="k">65 and over</div><div class="v">${s.o65.toFixed(1)}%</div>${delta(s.o65,s0.o65,1," pts",null)}</div>
+   <div class="stat"><div class="k">Dependency ratio</div><div class="v">${s.dep.toFixed(0)}</div>${delta(s.dep,s0.dep,0,"",false)}</div>`;
+}
+function esc(t){return t.replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[m]))}
+
+function renderPanel(){
+  const c=S.c, P=document.getElementById("panel");
+  if(S.phase==="need"){
+    P.innerHTML=`<div class="eyebrow">Step 1 · Diagnose</div><h3>What is happening in ${c.name}?</h3>
+      <div class="brief">${c.brief}</div>
+      <p class="hint">Study the pyramid and the stats. Replacement-level fertility is about 2.1.</p>
+      <div class="q">Which type of population policy does ${c.name} need?</div>
+      <div class="choice2">
+        <button class="cbtn pro" onclick="answerNeed('pro')"><b>Pronatalist policies</b><small>Encourage more births</small></button>
+        <button class="cbtn anti" onclick="answerNeed('anti')"><b>Antinatalist policies</b><small>Discourage births</small></button>
+      </div>
+      <div id="needfb">${S.needMsg}</div>
+      ${S.needOK?`<div class="row"><button class="primary" onclick="S.phase='choose';renderAll()">Start Round 1 →</button></div>`:""}`;
+    return;
+  }
+  if(S.phase==="choose"){
+    const r=c.rounds[S.round];
+    let h=`<div class="eyebrow">Round ${S.round+1} · ${S.year}–${S.year+10}</div><h3>${r.title}</h3>
+      <div class="brief">${r.sit}</div><div class="q">Choose ONE policy to enact this decade:</div><p class="hint" style="margin:-4px 0 10px">All three fit ${c.name}’s goal, but some have a bigger effect than others. Which do you predict will work best?</p><div class="policies">`;
+    r.options.forEach((o,i)=>{h+=`<button class="pol ${S.sel===i?"sel":""}" onclick="pick(${i})"><b>${o.n}</b><p>${o.d}</p></button>`;});
+    h+=`</div>`;
+    if(S.sel!==null){
+      const o=r.options[S.sel];
+      h+=`<div class="q">Before you can enact it: is “${o.n}” pronatalist or antinatalist?</div>
+        <div class="choice2" id="classbtns">
+          <button class="cbtn pro" onclick="classify('pro')" ${S.classified?"disabled":""}><b>Pronatalist</b><small>Intended to increase births</small></button>
+          <button class="cbtn anti" onclick="classify('anti')" ${S.classified?"disabled":""}><b>Antinatalist</b><small>Intended to decrease births</small></button>
+        </div><div id="classfb">${S.classMsg}</div>`;
+      if(S.classified){
+        h+=`<div class="q">Explain the intent: what is this policy trying to do, and how do you predict the base of the pyramid will change?</div>
+          <textarea id="just" rows="3" placeholder="This policy is intended to… so I predict the base of the pyramid will…" oninput="S.just=this.value;document.getElementById('enact').disabled=this.value.trim().length<25">${esc(S.just)}</textarea>
+          <div class="row"><button class="primary" id="enact" onclick="enact()" ${S.just.trim().length<25?"disabled":""}>Enact & fast-forward 10 years →</button>
+          <span class="hint">At least one full sentence.</span></div>`;
+      }
+    }
+    P.innerHTML=h; return;
+  }
+  if(S.phase==="result"){
+    const h=S.history[S.history.length-1], o=h.pol, fits=o.t===c.need;
+    const sNow=stats(S.pop), sB=stats(S.bpop), d=c.drift;
+    const dir=o.t==="pro"?"raised":"lowered", eff=Math.abs(o.e).toFixed(2);
+    const baseUp=sNow.base>h.baseBefore+0.005, baseDown=sNow.base<h.baseBefore-0.005;
+    const puzzling=(o.t==="pro"&&baseDown)||(o.t==="anti"&&baseUp);
+    const trendTxt=d===0?"":` The underlying trend also ${d<0?"lowered":"raised"} the fertility rate by ${Math.abs(d).toFixed(2)} this decade, regardless of policy.`;
+    P.innerHTML=`<div class="eyebrow">Round ${S.round+1} results · now ${S.year}</div><h3>${o.n}</h3>
+      <span class="chip ${o.t}">${TYPE[o.t]}</span>
+      <div class="fb ${fits?"ok":"warn"}">${fits
+        ?`This policy matches ${c.name}’s goal. It ${dir} the fertility rate by ${eff} compared with doing nothing.`
+        :`⚠ This policy works <b>against</b> ${c.name}’s goal. ${c.name} needed ${TYPE[c.need].toLowerCase()} policies, but this one ${dir} the fertility rate by ${eff} compared with doing nothing.`}</div>
+      ${puzzling?`<div class="fb info"><b>So why did the base of the pyramid ${o.t==="pro"?"still shrink":"still widen"}?</b> ${c.momentum}${trendTxt}</div>`:""}
+      <div class="cmp">
+        <div class="stat"><div class="k">TFR</div><div class="v">${h.tfrBefore.toFixed(2)} → ${S.tfr.toFixed(2)}</div><div class="d">policy ${o.e>0?"+":"−"}${eff}${d?` · trend ${d<0?"−":"+"}${Math.abs(d).toFixed(2)}`:""}</div></div>
+        <div class="stat"><div class="k">Ages 0–4</div><div class="v">${h.baseBefore.toFixed(1)}% → ${sNow.base.toFixed(1)}%</div><div class="d">no-policy path: ${sB.base.toFixed(1)}%</div></div>
+        <div class="stat"><div class="k">Babies born per year</div><div class="v">${fmtN(h.birthsBefore)} → ${fmtN(births(S.pop,c))}</div><div class="d">no-policy path: ${fmtN(births(S.bpop,c))}</div></div>
+        <div class="stat"><div class="k">Ages 65+</div><div class="v">${h.o65Before.toFixed(1)}% → ${sNow.o65.toFixed(1)}%</div><div class="d">no-policy path: ${sB.o65.toFixed(1)}%</div></div>
+      </div>
+      <div class="fb info">Without any of your policy choices, ${c.name}’s TFR would be about <b>${S.btfr.toFixed(2)}</b> and its population about <b>${fmtPop(sB.T/1e6)}</b> in ${S.year}.</div>
+      <div class="real"><b>Real-world connection:</b> ${o.note}</div>
+      ${S.round===2&&c.need==="pro"&&S.tfr<2.1&&S.history.filter(x=>x.pol.t==="pro").length>=2?`<p class="hint" style="margin-top:10px">Notice: even several pronatalist policies leave the TFR far below 2.1. Few countries have pushed fertility back up to replacement once it fell this low, and children born now won’t enter the workforce for 20 years.</p>`:""}
+      <div class="row"><button class="primary" onclick="nextRound()">${S.round<2?"Next decade →":(S.part===1?"Finish Part 1 →":"See my comparison report →")}</button></div>`;
+  }
+}
+function answerNeed(a){
+  if(S.needOK) return;
+  if(S.needFirst===null) S.needFirst=(a===S.c.need);
+  if(a===S.c.need){S.needOK=true;S.needMsg=`<div class="fb ok"><b>Correct.</b> ${S.c.needWhy}</div><div class="fb info"><b>Your job as advisor:</b> each decade you’ll choose one of three ${TYPE[S.c.need].toLowerCase()} policies. They don’t all work equally well — choose the one you think will have the biggest effect, then explain its intent.</div>`;}
+  else{S.needMsg=`<div class="fb no shake"><b>Not quite.</b> Compare the TFR to replacement level (2.1). Is the base of the pyramid wider or narrower than the age groups above it? Should this government want <i>more</i> births or <i>fewer</i>?</div>`;}
+  renderPanel();
+}
+function pick(i){ if(S.sel===i) return; S.sel=i; S.attempts=0; S.classified=false; S.classMsg=""; S.just=""; renderPanel();
+  setTimeout(()=>{const el=document.getElementById("classbtns"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"});},50); }
+function classify(a){
+  const o=S.c.rounds[S.round].options[S.sel]; S.attempts++;
+  if(a===o.t){S.classified=true;
+    S.classMsg=`<div class="fb ok"><b>Correct — ${TYPE[o.t].toLowerCase()}.</b> ${o.t==="pro"
+      ?"It lowers the cost or raises the reward of having children, so its intent is to <b>increase</b> the birth rate."
+      :"It makes it easier or more appealing to have fewer children (or penalizes extra births), so its intent is to <b>decrease</b> the birth rate."}</div>`;}
+  else{S.classMsg=`<div class="fb no shake"><b>Not quite.</b> Ask yourself: if families respond to this policy, will they have <i>more</i> children or <i>fewer</i>? Try again.</div>`;}
+  renderPanel();
+  setTimeout(()=>{const t=document.getElementById("just"); if(t) t.focus();},50);
+}
+function enact(){
+  const c=S.c, o=c.rounds[S.round].options[S.sel], s0=stats(S.pop);
+  const rec={round:S.round+1,years:`${S.year}–${S.year+10}`,pol:o,firstTry:S.attempts===1,attempts:S.attempts,just:S.just.trim(),
+             tfrBefore:S.tfr,baseBefore:s0.base,birthsBefore:births(S.pop,c),o65Before:s0.o65};
+  S.tfr=clamp(S.tfr+o.e+c.drift,0.5,7.5); S.btfr=clamp(S.btfr+c.drift,0.5,7.5);
+  if(o.srb) S.srb+=o.srb;
+  let p=S.pop,b=S.bpop; for(let k=0;k<2;k++){p=step(p,S.tfr,S.srb,c); b=step(b,S.btfr,c.srb,c);}
+  const from=pcts(S.pop); S.pop=p; S.bpop=b; S.year+=10; rec.tfrAfter=S.tfr;
+  S.history.push(rec); S.phase="result";
+  animate(from,pcts(p)); renderAll();
+  document.querySelector(".pyrcard").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function nextRound(){
+  if(S.round<2){S.round++;S.phase="choose";S.sel=null;S.classified=false;S.classMsg="";S.just="";S.attempts=0;renderAll();window.scrollTo({top:0,behavior:"smooth"});}
+  else{S.phase="done";
+    if(S.part===1){R.us=snap();renderBetween();show("between");}
+    else{R.cmp=snap();renderReport();show("report");}}
+}
+
+/* ---------- REPORT ---------- */
+function reflectQs(){
+  const o=R.cmp.c, same=o.need==="pro";
+  return [
+    same?`1. Both the United States and ${o.name} needed pronatalist policies. Compare how serious each country’s problem was. Use TFR and pyramid shape as evidence.`
+        :`1. Explain why the United States needed pronatalist policies but ${o.name} needed antinatalist policies. Use TFR and pyramid shape as evidence.`,
+    `2. Choose one policy you enacted in each country. Explain each policy’s INTENT and its EFFECT on that country’s population size and composition (age structure).`,
+    `3. The U.S. population grew even though its TFR stayed below 2.1. Explain why, and compare it with what happened to ${o.name}’s population size.`
+  ];
+}
+function policyRows(r){return r.history.map(h=>`<tr><td>${h.years}</td><td><b>${h.pol.n}</b><br><span class="chip ${h.pol.t}">${TYPE[h.pol.t]}</span></td>
+    <td>${h.firstTry?"✓ first try":`✗ ${h.attempts} tries`}</td><td>${esc(h.just)}</td><td>${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}</td></tr>`).join("");}
+function sgn(v){return (v>=0?"+":"−")+Math.abs(v).toFixed(2)}
+function renderReport(){
+  const u=R.us, o=R.cmp, us0=stats(u.start), us1=stats(u.pop), os0=stats(o.start), os1=stats(o.pop);
+  const row=(k,a,b)=>`<tr><td>${k}</td><td>${a}</td><td>${b}</td></tr>`;
+  const col=(r,s0,s1)=>`<div class="ccol"><div class="eyebrow">${r.key==="usa"?"Part 1":"Part 2"}</div><h3>${r.c.name}</h3>
+      <span class="chip ${r.c.need}">Needed ${TYPE[r.c.need].toLowerCase()} policies</span>
+      ${miniCompare(r.start,r.pop)}<div class="minileg">Solid bars = 2055 · dashed outline = 2025 · ${s0.shape} → ${s1.shape}</div></div>`;
+  const qs=reflectQs();
+  document.getElementById("rep").innerHTML=`
+    <div class="eyebrow">Comparison report · Topic 2.7 Population Policies</div>
+    <h2 style="font-size:2rem">United States vs. ${o.c.name}, 2025–2055</h2>
+    <p><b>Student:</b> ${esc(R.name||"(no name entered)")}</p>
+    <div class="twocol">${col(u,us0,us1)}${col(o,os0,os1)}</div>
+    <div class="tw"><table class="ctable"><thead><tr><th></th><th>United States</th><th>${o.c.name}</th></tr></thead><tbody>
+      ${row("Policy type needed",TYPE[u.c.need],TYPE[o.c.need])}
+      ${row("Diagnosis correct on 1st try",u.needFirst?"✓":"✗",o.needFirst?"✓":"✗")}
+      ${row("Classifications correct (1st try)",scoreOf(u)+" / 4",scoreOf(o)+" / 4")}
+      ${row("TFR 2025 → 2055",`${u.c.tfr.toFixed(2)} → ${u.tfr.toFixed(2)}`,`${o.c.tfr.toFixed(2)} → ${o.tfr.toFixed(2)}`)}
+      ${row("TFR change from your policies",sgn(u.tfr-u.btfr),sgn(o.tfr-o.btfr))}
+      ${row("Population 2025 → 2055",`${fmtPop(us0.T/1e6)} → ${fmtPop(us1.T/1e6)}`,`${fmtPop(os0.T/1e6)} → ${fmtPop(os1.T/1e6)}`)}
+      ${row("Under 15",`${us0.u15.toFixed(1)}% → ${us1.u15.toFixed(1)}%`,`${os0.u15.toFixed(1)}% → ${os1.u15.toFixed(1)}%`)}
+      ${row("65 and over",`${us0.o65.toFixed(1)}% → ${us1.o65.toFixed(1)}%`,`${os0.o65.toFixed(1)}% → ${os1.o65.toFixed(1)}%`)}
+      ${row("Median age",`${us0.med.toFixed(1)} → ${us1.med.toFixed(1)}`,`${os0.med.toFixed(1)} → ${os1.med.toFixed(1)}`)}
+      ${row("Pyramid shape",`${us0.shape} → ${us1.shape}`,`${os0.shape} → ${os1.shape}`)}
+    </tbody></table></div>
+    <h3>United States policies</h3>
+    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Stated intent</th><th>TFR</th></tr></thead><tbody>${policyRows(u)}</tbody></table></div>
+    <h3>${o.c.name} policies</h3>
+    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Stated intent</th><th>TFR</th></tr></thead><tbody>${policyRows(o)}</tbody></table></div>
+    <h3>Comparison reflection</h3>
+    ${qs.map((q,i)=>`<label class="q" for="r${i+1}" style="display:block">${q}</label><textarea id="r${i+1}"></textarea>`).join("")}
+    <div class="row noprint">
+      <button class="primary" onclick="copyReport()">Copy report to submit</button>
+      <button class="secondary" onclick="window.print()">Print / save as PDF</button>
+      <button class="secondary" onclick="renderBetween();show('between')">Pick a different comparison country</button>
+    </div>
+    <div id="copyfb"></div>`;
+}
+function copyReport(){
+  const qs=reflectQs();
+  const part=(r,label)=>{const s0=stats(r.start), s1=stats(r.pop);
+    let t=`${label}: ${r.c.name.toUpperCase()} (2025–2055)\nNeeded: ${TYPE[r.c.need].toLowerCase()} policies — diagnosis ${r.needFirst?"correct on first try":"not correct on first try"}\n`;
+    r.history.forEach(h=>{t+=`Round ${h.round} (${h.years}): ${h.pol.n} — ${TYPE[h.pol.t]}\n  Classified: ${h.firstTry?"correct on first try":h.attempts+" tries"}\n  Intent: ${h.just}\n  TFR: ${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}\n`;});
+    t+=`Results: TFR ${r.c.tfr.toFixed(2)} → ${r.tfr.toFixed(2)} (change from policies: ${sgn(r.tfr-r.btfr)})\nPopulation ${fmtPop(s0.T/1e6)} → ${fmtPop(s1.T/1e6)}\nUnder 15: ${s0.u15.toFixed(1)}% → ${s1.u15.toFixed(1)}% | 65+: ${s0.o65.toFixed(1)}% → ${s1.o65.toFixed(1)}%\nShape: ${s0.shape} → ${s1.shape}\nClassifications correct (1st try): ${scoreOf(r)} / 4\n\n`;
+    return t;};
+  let t=`PYRAMID POLICY LAB — Topic 2.7 Population Policies\nStudent: ${R.name||"(no name)"}\nComparison: United States vs. ${R.cmp.c.name}\n\n`;
+  t+=part(R.us,"PART 1")+part(R.cmp,"PART 2");
+  t+=`COMPARISON REFLECTION\n`;
+  qs.forEach((q,i)=>{const v=document.getElementById("r"+(i+1)).value.trim(); t+=`${q}\n${v||"(blank)"}\n\n`;});
+  const done=ok=>{document.getElementById("copyfb").innerHTML=ok?`<div class="fb ok">Copied! Paste it into your Google Classroom answer.</div>`:`<div class="fb no">Couldn’t copy automatically — use Print / save as PDF instead.</div>`;};
+  if(navigator.clipboard&&window.isSecureContext){navigator.clipboard.writeText(t).then(()=>done(true),()=>fallback());}else fallback();
+  function fallback(){const ta=document.createElement("textarea");ta.value=t;document.body.appendChild(ta);ta.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}ta.remove();done(ok);}
+}
+
+renderHome();
+</script>
+</body>
+</html>
