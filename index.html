@@ -126,6 +126,13 @@ svg#pyr{width:100%;height:auto;display:block;margin-top:6px}
 .usstart{width:100%;grid-template-columns:1fr 150px;border-width:2px;border-color:var(--navy);padding:20px}
 .usstart h3{font-size:1.7rem}
 .usstart .go{display:inline-block;margin-top:10px;background:var(--navy);color:#fff;border-radius:10px;padding:9px 16px;font-weight:700}
+.mcgrid{display:grid;gap:8px}
+.mcopt{border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px 12px;text-align:left;color:var(--ink);font-size:.95rem}
+.mcopt:hover:not(:disabled){border-color:var(--teal)}
+.mcopt:disabled{cursor:default}
+.mcopt.sel{border-color:var(--navy);background:#F1F4FA;font-weight:700}
+.mcopt.right{border-color:var(--green);background:var(--green-l)}
+.mcopt.wrong{border-color:var(--red);background:var(--red-l)}
 .namewarn{color:var(--red);font-weight:700;font-size:.9rem}
 .twocol{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:14px 0}
 .ccol{background:var(--cream);border-radius:12px;padding:14px}
@@ -207,9 +214,10 @@ footer{text-align:center;font-size:.8rem;color:var(--muted);padding:10px 16px 30
       <li>Students complete the United States first (Part 1), then choose one comparison country (Part 2). The final report puts both side by side with three comparison reflection questions.</li>
       <li>Each round projects the population forward 10 years using a simplified cohort-component model (5-year age groups, male/female, age-specific survival and fertility).</li>
       <li>Each policy shifts the TFR by an amount scaled to real-world evidence: cash incentives in low-fertility countries have small effects; girls’ education, ending child marriage, and contraceptive access have larger effects in high-fertility countries. Effects are cumulative and start immediately — real policies take years.</li>
+      <li>After classifying each policy, students answer two auto-graded multiple-choice questions: the policy’s intent (answer choices are drawn at random from pools each time — one correct wording, one from the opposite policy type, and two other population goals such as immigration or lowering the death rate), and a prediction of its effect compared with doing nothing (decade 1: base of the pyramid; decade 2: dependency ratio; decade 3: total population). The prediction is checked against the model on the results screen, and scores appear on the report.</li>
       <li>Every option in a country matches its goal (all pronatalist or all antinatalist); options differ in strength, so students predict which will work best and compare results.</li>
       <li>Starting pyramids use approximate 2025 age structures; headline figures (births, TFR) reflect 2025 national statistics. Some countries also have an underlying fertility trend (e.g., China −0.05 per decade), and population momentum means a policy can push fertility the right way while the base still moves the other way — the results screen explains this when it happens.</li>
-      <li>Immigration is modeled only for the United States, held constant at about 1 million net migrants per year, mostly young adults. Students can’t change it; it’s there so the U.S. pyramid behaves realistically and to set up the comparison question about why the U.S. keeps growing with a TFR below 2.1. Other countries are modeled without migration.</li>
+      <li>Immigration is modeled only for the United States, held constant at about 1 million net migrants per year, mostly young adults. Students can’t change it; it’s there so the U.S. pyramid behaves realistically and so students can see why the U.S. keeps growing with a TFR below 2.1. Other countries are modeled without migration.</li>
       <li>Students finish with a report they can copy into Google Classroom or print to PDF. Nothing is saved, so they should submit before closing the tab.</li>
     </ul>
   </details>
@@ -476,6 +484,8 @@ function startUS(){
 }
 function snap(){return {key:S.key,c:S.c,start:S.start,pop:S.pop,bpop:S.bpop,tfr:S.tfr,btfr:S.btfr,history:S.history,needFirst:S.needFirst};}
 function scoreOf(r){return (r.needFirst?1:0)+r.history.filter(h=>h.firstTry).length;}
+function mcScore(r){return r.history.filter(h=>h.mcIntent).length+r.history.filter(h=>h.predOK).length;}
+function predTxt(h){return EFFECT_QS[h.predQ].label+": "+EFFECT_QS[h.predQ].opts[h.pred].split(" —")[0];}
 function miniCompare(start,end,w=300,h=210){
   const a=pcts(start), b=pcts(end), mx=Math.max(...a.m,...a.f,...b.m,...b.f)*1.05;
   const cx=w/2, gap=16, half=cx-gap-4, top=4, rh=(h-top-4)/17;
@@ -556,11 +566,53 @@ function animate(a,b){
 
 /* ---------- GAME ---------- */
 let S=null;
+const INTENT_POOL={
+  pro:["Lower the cost or raise the reward of having children, so families have more babies",
+       "Make it easier for parents to balance work and family, so more people choose to have children",
+       "Encourage couples to have more children by giving them financial or practical support",
+       "Raise the birth rate by removing obstacles that keep people from starting or growing a family",
+       "Increase the total fertility rate so the country has more young people in the future"],
+  anti:["Give people the means or reasons to have fewer children, so families are smaller",
+       "Lower the birth rate by expanding people’s choices, especially for women and girls",
+       "Help families space births further apart and have fewer children overall",
+       "Slow population growth by reducing the number of children each woman has",
+       "Lower the total fertility rate so schools, jobs, and services can keep up with population growth"],
+  other:["Bring more immigrants into the country to grow the workforce",
+       "Help people live longer by lowering the death rate among older adults",
+       "Convince young adults to move from big cities to rural areas",
+       "Keep skilled workers from emigrating to other countries",
+       "Raise the retirement age so older adults keep working longer",
+       "Move people from crowded regions to less populated regions of the country"]};
+function pickN(a,n){const c=a.slice(),out=[];while(out.length<n&&c.length)out.push(c.splice(Math.floor(Math.random()*c.length),1)[0]);return out;}
+function genIntent(t){
+  const opp=t==="pro"?"anti":"pro";
+  const set=[{k:t,t:pickN(INTENT_POOL[t],1)[0]},{k:opp,t:pickN(INTENT_POOL[opp],1)[0]},...pickN(INTENT_POOL.other,2).map(x=>({k:"other",t:x}))];
+  return pickN(set,set.length);
+}
+const EFFECT_QS=[
+  {metric:"base",label:"Base of the pyramid (ages 0–4)",q:"Predict: compared with doing nothing, what will the base of the pyramid (ages 0–4) look like in 10 years?",
+   opts:{up:"Wider",down:"Narrower",same:"About the same"},
+   why:{up:"More births each year means more children in the 0–4 bar than there would have been.",down:"Fewer births each year means fewer children in the 0–4 bar than there would have been."}},
+  {metric:"dep",label:"Dependency ratio",q:"Predict: compared with doing nothing, what will happen to the dependency ratio over the next 10 years?",
+   opts:{up:"Higher — more dependents for each working-age adult",down:"Lower — fewer dependents for each working-age adult",same:"No change"},
+   why:{up:"Babies and young children count as dependents, so in the short run more births <b>raise</b> the dependency ratio. The payoff comes 15–20 years later, when those children join the workforce.",
+        down:"Fewer babies means fewer young dependents for each working-age adult. When this happens in a high-fertility country, economists call the opportunity a <b>demographic dividend</b>."}},
+  {metric:"T",label:"Total population in 2055",q:"Predict: compared with doing nothing, how big will the total population be in 2055?",
+   opts:{up:"Larger",down:"Smaller",same:"About the same"},
+   why:{up:"Every extra birth adds to the total population, and over 30 years those additions build up.",down:"Fewer births each year slows population growth, and over 30 years the difference builds up."}}];
+function actualDir(m,sNow,sB){const d=sNow[m]-sB[m], tol=m==="T"?sB.T*0.0002:(m==="dep"?0.05:0.005);return d>tol?"up":d<-tol?"down":"same";}
+function mcAnswer(which,k){
+  if(which===1){ if(S.mc1!==null) return; S.mc1=k; }
+  else { if(S.mc2!==null) return; S.mc2=k; }
+  renderPanel();
+  setTimeout(()=>{const el=document.getElementById(which===1?"mc2":"enact"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"});},50);
+}
+function poss(n){return n.endsWith("s")?n+"’":n+"’s"}
 const TYPE={pro:"Pronatalist",anti:"Antinatalist"};
 function startGame(key){
   const c=COUNTRIES[key], p0=initPop(c);
   S={key,c,part:key==="usa"?1:2,year:2025,round:0,phase:"need",tfr:c.tfr,btfr:c.tfr,srb:c.srb,pop:p0,bpop:p0,start:p0,
-     needFirst:null,needOK:false,needMsg:"",sel:null,attempts:0,classified:false,classMsg:"",just:"",history:[],
+     needFirst:null,needOK:false,needMsg:"",sel:null,attempts:0,classified:false,classMsg:"",mc1:null,mc2:null,io:null,history:[],
      name:R.name};
   buildPyramid(calcScale(p0),pcts(p0)); drawBars(pcts(p0));
   document.getElementById("g-name").textContent=c.name;
@@ -610,21 +662,34 @@ function renderPanel(){
   if(S.phase==="choose"){
     const r=c.rounds[S.round];
     let h=`<div class="eyebrow">Round ${S.round+1} · ${S.year}–${S.year+10}</div><h3>${r.title}</h3>
-      <div class="brief">${r.sit}</div><div class="q">Choose ONE policy to enact this decade:</div><p class="hint" style="margin:-4px 0 10px">All three fit ${c.name}’s goal, but some have a bigger effect than others. Which do you predict will work best?</p><div class="policies">`;
+      <div class="brief">${r.sit}</div><div class="q">Choose ONE policy to enact this decade:</div><p class="hint" style="margin:-4px 0 10px">All three fit ${poss(c.name)} goal, but some have a bigger effect than others. Which do you predict will work best?</p><div class="policies">`;
     r.options.forEach((o,i)=>{h+=`<button class="pol ${S.sel===i?"sel":""}" onclick="pick(${i})"><b>${o.n}</b><p>${o.d}</p></button>`;});
     h+=`</div>`;
     if(S.sel!==null){
       const o=r.options[S.sel];
-      h+=`<div class="q">Before you can enact it: is “${o.n}” pronatalist or antinatalist?</div>
+      h+=`<div class="q">Before you can enact it: is ${o.n.startsWith("“")?o.n:"“"+o.n+"”"} pronatalist or antinatalist?</div>
         <div class="choice2" id="classbtns">
           <button class="cbtn pro" onclick="classify('pro')" ${S.classified?"disabled":""}><b>Pronatalist</b><small>Intended to increase births</small></button>
           <button class="cbtn anti" onclick="classify('anti')" ${S.classified?"disabled":""}><b>Antinatalist</b><small>Intended to decrease births</small></button>
         </div><div id="classfb">${S.classMsg}</div>`;
       if(S.classified){
-        h+=`<div class="q">Explain the intent: what is this policy trying to do, and how do you predict the base of the pyramid will change?</div>
-          <textarea id="just" rows="3" placeholder="This policy is intended to… so I predict the base of the pyramid will…" oninput="S.just=this.value;document.getElementById('enact').disabled=this.value.trim().length<25">${esc(S.just)}</textarea>
-          <div class="row"><button class="primary" id="enact" onclick="enact()" ${S.just.trim().length<25?"disabled":""}>Enact & fast-forward 10 years →</button>
-          <span class="hint">At least one full sentence.</span></div>`;
+        if(!S.io) S.io=genIntent(o.t);
+        const io=S.io, eq=EFFECT_QS[S.round];
+        h+=`<div class="q">Question 1: What is this policy intended to do?</div><div class="mcgrid">`;
+        io.forEach((x,ix)=>{let cls="";if(S.mc1!==null){if(x.k===o.t)cls="right";else if(ix===S.mc1)cls="wrong";}
+          h+=`<button class="mcopt ${cls}" onclick="mcAnswer(1,${ix})" ${S.mc1!==null?"disabled":""}>${x.t}</button>`;});
+        h+=`</div>`;
+        if(S.mc1!==null){
+          const right=io.find(x=>x.k===o.t);
+          h+=io[S.mc1].k===o.t?`<div class="fb ok"><b>Correct.</b> That is the intent of a ${TYPE[o.t].toLowerCase()} policy.</div>`
+            :`<div class="fb no"><b>Not quite.</b> This is a ${TYPE[o.t].toLowerCase()} policy, so its intent is to <b>${o.t==="pro"?"increase":"decrease"}</b> births: “${right.t}.”</div>`;
+          h+=`<div class="q" id="mc2">Question 2: ${eq.q}</div><div class="mcgrid">`;
+          ["up","down","same"].forEach(k=>{h+=`<button class="mcopt ${S.mc2===k?"sel":""}" onclick="mcAnswer(2,'${k}')" ${S.mc2!==null?"disabled":""}>${eq.opts[k]}</button>`;});
+          h+=`</div>`;
+          if(S.mc2!==null) h+=`<p class="hint" style="margin-top:8px">Prediction locked in. You’ll find out if you were right after the decade.</p>`;
+        }
+        h+=`<div class="row"><button class="primary" id="enact" onclick="enact()" ${S.mc1===null||S.mc2===null?"disabled":""}>Enact & fast-forward 10 years →</button>
+          ${S.mc1===null||S.mc2===null?`<span class="hint">Answer both questions first.</span>`:""}</div>`;
       }
     }
     P.innerHTML=h; return;
@@ -639,8 +704,8 @@ function renderPanel(){
     P.innerHTML=`<div class="eyebrow">Round ${S.round+1} results · now ${S.year}</div><h3>${o.n}</h3>
       <span class="chip ${o.t}">${TYPE[o.t]}</span>
       <div class="fb ${fits?"ok":"warn"}">${fits
-        ?`This policy matches ${c.name}’s goal. It ${dir} the fertility rate by ${eff} compared with doing nothing.`
-        :`⚠ This policy works <b>against</b> ${c.name}’s goal. ${c.name} needed ${TYPE[c.need].toLowerCase()} policies, but this one ${dir} the fertility rate by ${eff} compared with doing nothing.`}</div>
+        ?`This policy matches ${poss(c.name)} goal. It ${dir} the fertility rate by ${eff} compared with doing nothing.`
+        :`⚠ This policy works <b>against</b> ${poss(c.name)} goal. ${c.name} needed ${TYPE[c.need].toLowerCase()} policies, but this one ${dir} the fertility rate by ${eff} compared with doing nothing.`}</div>
       ${puzzling?`<div class="fb info"><b>So why did the base of the pyramid ${o.t==="pro"?"still shrink":"still widen"}?</b> ${c.momentum}${trendTxt}</div>`:""}
       <div class="cmp">
         <div class="stat"><div class="k">TFR</div><div class="v">${h.tfrBefore.toFixed(2)} → ${S.tfr.toFixed(2)}</div><div class="d">policy ${o.e>0?"+":"−"}${eff}${d?` · trend ${d<0?"−":"+"}${Math.abs(d).toFixed(2)}`:""}</div></div>
@@ -648,7 +713,10 @@ function renderPanel(){
         <div class="stat"><div class="k">Babies born per year</div><div class="v">${fmtN(h.birthsBefore)} → ${fmtN(births(S.pop,c))}</div><div class="d">no-policy path: ${fmtN(births(S.bpop,c))}</div></div>
         <div class="stat"><div class="k">Ages 65+</div><div class="v">${h.o65Before.toFixed(1)}% → ${sNow.o65.toFixed(1)}%</div><div class="d">no-policy path: ${sB.o65.toFixed(1)}%</div></div>
       </div>
-      <div class="fb info">Without any of your policy choices, ${c.name}’s TFR would be about <b>${S.btfr.toFixed(2)}</b> and its population about <b>${fmtPop(sB.T/1e6)}</b> in ${S.year}.</div>
+      ${(()=>{const eq=EFFECT_QS[h.predQ], act=h.predActual, ok=h.predOK, m=eq.metric;
+        const fmt=v=>m==="T"?fmtPop(v/1e6):m==="dep"?v.toFixed(1):v.toFixed(2)+"%";
+        return `<div class="fb ${ok?"ok":"no"}"><b>Your prediction: ${eq.opts[h.pred].split(" —")[0]} — ${ok?"✓ correct":"✗ not this time"}.</b> ${eq.label}: <b>${fmt(sNow[m])}</b> with your policies vs. <b>${fmt(sB[m])}</b> with no policy. ${eq.why[act]||""}</div>`;})()}
+      <div class="fb info">Without any of your policy choices, ${poss(c.name)} TFR would be about <b>${S.btfr.toFixed(2)}</b> and its population about <b>${fmtPop(sB.T/1e6)}</b> in ${S.year}.</div>
       <div class="real"><b>Real-world connection:</b> ${o.note}</div>
       ${S.round===2&&c.need==="pro"&&S.tfr<2.1&&S.history.filter(x=>x.pol.t==="pro").length>=2?`<p class="hint" style="margin-top:10px">Notice: even several pronatalist policies leave the TFR far below 2.1. Few countries have pushed fertility back up to replacement once it fell this low, and children born now won’t enter the workforce for 20 years.</p>`:""}
       <div class="row"><button class="primary" onclick="nextRound()">${S.round<2?"Next decade →":(S.part===1?"Finish Part 1 →":"See my comparison report →")}</button></div>`;
@@ -661,7 +729,7 @@ function answerNeed(a){
   else{S.needMsg=`<div class="fb no shake"><b>Not quite.</b> Compare the TFR to replacement level (2.1). Is the base of the pyramid wider or narrower than the age groups above it? Should this government want <i>more</i> births or <i>fewer</i>?</div>`;}
   renderPanel();
 }
-function pick(i){ if(S.sel===i) return; S.sel=i; S.attempts=0; S.classified=false; S.classMsg=""; S.just=""; renderPanel();
+function pick(i){ if(S.sel===i) return; S.sel=i; S.attempts=0; S.classified=false; S.classMsg=""; S.mc1=null; S.mc2=null; S.io=null; renderPanel();
   setTimeout(()=>{const el=document.getElementById("classbtns"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"});},50); }
 function classify(a){
   const o=S.c.rounds[S.round].options[S.sel]; S.attempts++;
@@ -671,22 +739,23 @@ function classify(a){
       :"It makes it easier or more appealing to have fewer children (or penalizes extra births), so its intent is to <b>decrease</b> the birth rate."}</div>`;}
   else{S.classMsg=`<div class="fb no shake"><b>Not quite.</b> Ask yourself: if families respond to this policy, will they have <i>more</i> children or <i>fewer</i>? Try again.</div>`;}
   renderPanel();
-  setTimeout(()=>{const t=document.getElementById("just"); if(t) t.focus();},50);
+  setTimeout(()=>{const t=document.querySelector(".mcgrid"); if(t) t.scrollIntoView({behavior:"smooth",block:"center"});},50);
 }
 function enact(){
   const c=S.c, o=c.rounds[S.round].options[S.sel], s0=stats(S.pop);
-  const rec={round:S.round+1,years:`${S.year}–${S.year+10}`,pol:o,firstTry:S.attempts===1,attempts:S.attempts,just:S.just.trim(),
+  const rec={round:S.round+1,years:`${S.year}–${S.year+10}`,pol:o,firstTry:S.attempts===1,attempts:S.attempts,mcIntent:S.io[S.mc1].k===o.t,pred:S.mc2,predQ:S.round,
              tfrBefore:S.tfr,baseBefore:s0.base,birthsBefore:births(S.pop,c),o65Before:s0.o65};
   S.tfr=clamp(S.tfr+o.e+c.drift,0.5,7.5); S.btfr=clamp(S.btfr+c.drift,0.5,7.5);
   if(o.srb) S.srb+=o.srb;
   let p=S.pop,b=S.bpop; for(let k=0;k<2;k++){p=step(p,S.tfr,S.srb,c); b=step(b,S.btfr,c.srb,c);}
   const from=pcts(S.pop); S.pop=p; S.bpop=b; S.year+=10; rec.tfrAfter=S.tfr;
+  rec.predActual=actualDir(EFFECT_QS[S.round].metric,stats(p),stats(b)); rec.predOK=rec.pred===rec.predActual;
   S.history.push(rec); S.phase="result";
   animate(from,pcts(p)); renderAll();
   document.querySelector(".pyrcard").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function nextRound(){
-  if(S.round<2){S.round++;S.phase="choose";S.sel=null;S.classified=false;S.classMsg="";S.just="";S.attempts=0;renderAll();window.scrollTo({top:0,behavior:"smooth"});}
+  if(S.round<2){S.round++;S.phase="choose";S.sel=null;S.classified=false;S.classMsg="";S.mc1=null;S.mc2=null;S.io=null;S.attempts=0;renderAll();window.scrollTo({top:0,behavior:"smooth"});}
   else{S.phase="done";
     if(S.part===1){R.us=snap();renderBetween();show("between");}
     else{R.cmp=snap();renderReport();show("report");}}
@@ -699,11 +768,11 @@ function reflectQs(){
     same?`1. Both the United States and ${o.name} needed pronatalist policies. Compare how serious each country’s problem was. Use TFR and pyramid shape as evidence.`
         :`1. Explain why the United States needed pronatalist policies but ${o.name} needed antinatalist policies. Use TFR and pyramid shape as evidence.`,
     `2. Choose one policy you enacted in each country. Explain each policy’s INTENT and its EFFECT on that country’s population size and composition (age structure).`,
-    `3. The U.S. population grew even though its TFR stayed below 2.1. Explain why, and compare it with what happened to ${o.name}’s population size.`
+    `3. Predict one challenge each country is likely to face by 2055 because of its age structure (for example: the workforce, schools, or care for older adults). Use your 2055 pyramids as evidence.`
   ];
 }
 function policyRows(r){return r.history.map(h=>`<tr><td>${h.years}</td><td><b>${h.pol.n}</b><br><span class="chip ${h.pol.t}">${TYPE[h.pol.t]}</span></td>
-    <td>${h.firstTry?"✓ first try":`✗ ${h.attempts} tries`}</td><td>${esc(h.just)}</td><td>${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}</td></tr>`).join("");}
+    <td>${h.firstTry?"✓ first try":`✗ ${h.attempts} tries`}</td><td>${h.mcIntent?"✓":"✗"}</td><td>${esc(predTxt(h))} ${h.predOK?"✓":"✗"}</td><td>${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}</td></tr>`).join("");}
 function sgn(v){return (v>=0?"+":"−")+Math.abs(v).toFixed(2)}
 function renderReport(){
   const u=R.us, o=R.cmp, us0=stats(u.start), us1=stats(u.pop), os0=stats(o.start), os1=stats(o.pop);
@@ -721,6 +790,7 @@ function renderReport(){
       ${row("Policy type needed",TYPE[u.c.need],TYPE[o.c.need])}
       ${row("Diagnosis correct on 1st try",u.needFirst?"✓":"✗",o.needFirst?"✓":"✗")}
       ${row("Classifications correct (1st try)",scoreOf(u)+" / 4",scoreOf(o)+" / 4")}
+      ${row("Multiple-choice correct",mcScore(u)+" / 6",mcScore(o)+" / 6")}
       ${row("TFR 2025 → 2055",`${u.c.tfr.toFixed(2)} → ${u.tfr.toFixed(2)}`,`${o.c.tfr.toFixed(2)} → ${o.tfr.toFixed(2)}`)}
       ${row("TFR change from your policies",sgn(u.tfr-u.btfr),sgn(o.tfr-o.btfr))}
       ${row("Population 2025 → 2055",`${fmtPop(us0.T/1e6)} → ${fmtPop(us1.T/1e6)}`,`${fmtPop(os0.T/1e6)} → ${fmtPop(os1.T/1e6)}`)}
@@ -730,9 +800,9 @@ function renderReport(){
       ${row("Pyramid shape",`${us0.shape} → ${us1.shape}`,`${os0.shape} → ${os1.shape}`)}
     </tbody></table></div>
     <h3>United States policies</h3>
-    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Stated intent</th><th>TFR</th></tr></thead><tbody>${policyRows(u)}</tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Intent</th><th>Prediction</th><th>TFR</th></tr></thead><tbody>${policyRows(u)}</tbody></table></div>
     <h3>${o.c.name} policies</h3>
-    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Stated intent</th><th>TFR</th></tr></thead><tbody>${policyRows(o)}</tbody></table></div>
+    <div class="tw"><table><thead><tr><th>Decade</th><th>Policy</th><th>Classified</th><th>Intent</th><th>Prediction</th><th>TFR</th></tr></thead><tbody>${policyRows(o)}</tbody></table></div>
     <h3>Comparison reflection</h3>
     ${qs.map((q,i)=>`<label class="q" for="r${i+1}" style="display:block">${q}</label><textarea id="r${i+1}"></textarea>`).join("")}
     <div class="row noprint">
@@ -746,8 +816,8 @@ function copyReport(){
   const qs=reflectQs();
   const part=(r,label)=>{const s0=stats(r.start), s1=stats(r.pop);
     let t=`${label}: ${r.c.name.toUpperCase()} (2025–2055)\nNeeded: ${TYPE[r.c.need].toLowerCase()} policies — diagnosis ${r.needFirst?"correct on first try":"not correct on first try"}\n`;
-    r.history.forEach(h=>{t+=`Round ${h.round} (${h.years}): ${h.pol.n} — ${TYPE[h.pol.t]}\n  Classified: ${h.firstTry?"correct on first try":h.attempts+" tries"}\n  Intent: ${h.just}\n  TFR: ${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}\n`;});
-    t+=`Results: TFR ${r.c.tfr.toFixed(2)} → ${r.tfr.toFixed(2)} (change from policies: ${sgn(r.tfr-r.btfr)})\nPopulation ${fmtPop(s0.T/1e6)} → ${fmtPop(s1.T/1e6)}\nUnder 15: ${s0.u15.toFixed(1)}% → ${s1.u15.toFixed(1)}% | 65+: ${s0.o65.toFixed(1)}% → ${s1.o65.toFixed(1)}%\nShape: ${s0.shape} → ${s1.shape}\nClassifications correct (1st try): ${scoreOf(r)} / 4\n\n`;
+    r.history.forEach(h=>{t+=`Round ${h.round} (${h.years}): ${h.pol.n} — ${TYPE[h.pol.t]}\n  Classified: ${h.firstTry?"correct on first try":h.attempts+" tries"}\n  Intent question: ${h.mcIntent?"correct":"incorrect"}\n  Prediction: ${predTxt(h)} (${h.predOK?"correct":"incorrect"})\n  TFR: ${h.tfrBefore.toFixed(2)} → ${h.tfrAfter.toFixed(2)}\n`;});
+    t+=`Results: TFR ${r.c.tfr.toFixed(2)} → ${r.tfr.toFixed(2)} (change from policies: ${sgn(r.tfr-r.btfr)})\nPopulation ${fmtPop(s0.T/1e6)} → ${fmtPop(s1.T/1e6)}\nUnder 15: ${s0.u15.toFixed(1)}% → ${s1.u15.toFixed(1)}% | 65+: ${s0.o65.toFixed(1)}% → ${s1.o65.toFixed(1)}%\nShape: ${s0.shape} → ${s1.shape}\nClassifications correct (1st try): ${scoreOf(r)} / 4\nMultiple-choice correct: ${mcScore(r)} / 6\n\n`;
     return t;};
   let t=`PYRAMID POLICY LAB — Topic 2.7 Population Policies\nStudent: ${R.name||"(no name)"}\nComparison: United States vs. ${R.cmp.c.name}\n\n`;
   t+=part(R.us,"PART 1")+part(R.cmp,"PART 2");
